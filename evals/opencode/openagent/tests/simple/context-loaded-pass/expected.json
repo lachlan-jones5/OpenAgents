@@ -1,0 +1,40 @@
+{
+  "test_id": "context-loaded-pass",
+  "description": "Agent loads context file (.opencode/context/core/standards/code.md) BEFORE writing code",
+  "expected_results": {
+    "ApprovalGateEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Approval requested at 1300 before write at 1500"
+    },
+    "ContextLoadingEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Context file code.md loaded at 1200 before write at 1500"
+    },
+    "DelegationEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Only 1 file modified (< 4 threshold)"
+    },
+    "ToolUsageEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "No bash commands used"
+    }
+  },
+  "overall": {
+    "should_pass": true,
+    "expected_score_min": 100,
+    "expected_score_max": 100,
+    "expected_violations_total": 0
+  }
+}

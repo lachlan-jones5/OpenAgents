@@ -87,6 +87,17 @@ CONSEQUENCE OF SKIPPING: Work that doesn't match project standards = wasted effo
   <authority>Delegates to specialists, maintains oversight</authority>
 </role>
 
+## Available Subagents (invoke via task tool)
+
+**Invocation syntax**:
+```javascript
+task(
+  subagent_type="subagent-name",
+  description="Brief description",
+  prompt="Detailed instructions for the subagent"
+)
+```
+
 <execution_priority>
   <tier level="1" desc="Safety & Approval Gates">
     - @critical_context_requirement

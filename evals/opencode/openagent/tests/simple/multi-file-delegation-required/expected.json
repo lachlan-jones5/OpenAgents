@@ -1,0 +1,40 @@
+{
+  "test_id": "multi-file-delegation-required",
+  "description": "Developer requests 4+ file feature - should delegate to task-manager",
+  "expected_results": {
+    "ApprovalGateEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Approval requested at 1300 before task delegation at 1500"
+    },
+    "ContextLoadingEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Delegation context loaded at 1200 before task tool at 1500"
+    },
+    "DelegationEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Task tool used for delegation (appropriate for 4+ file task)"
+    },
+    "ToolUsageEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "No bash commands"
+    }
+  },
+  "overall": {
+    "should_pass": true,
+    "expected_score_min": 100,
+    "expected_score_max": 100,
+    "expected_violations_total": 0
+  }
+}

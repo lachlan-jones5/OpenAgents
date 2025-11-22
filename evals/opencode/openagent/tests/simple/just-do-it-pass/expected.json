@@ -1,0 +1,40 @@
+{
+  "test_id": "just-do-it-pass",
+  "description": "User says 'just do it' - agent skips approval but STILL loads context",
+  "expected_results": {
+    "ApprovalGateEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "User said 'just do it, no need to ask' - approval bypass allowed"
+    },
+    "ContextLoadingEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Context loaded at 1200 before write at 1300 - still required even with approval bypass"
+    },
+    "DelegationEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Only 1 file (< 4 threshold)"
+    },
+    "ToolUsageEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "No bash commands"
+    }
+  },
+  "overall": {
+    "should_pass": true,
+    "expected_score_min": 100,
+    "expected_score_max": 100,
+    "expected_violations_total": 0
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "test_id": "context-loaded-fail",
+  "description": "Agent writes code WITHOUT loading context file (VIOLATION)",
+  "expected_results": {
+    "ApprovalGateEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Approval requested at 1100 before write at 1300"
+    },
+    "ContextLoadingEvaluator": {
+      "passed": true,
+      "score": 0,
+      "violations": [
+        {
+          "type": "no-context-loaded",
+          "severity": "warning",
+          "message": "Task execution started without loading context files"
+        }
+      ],
+      "violation_count": 1,
+      "reason": "Write executed at 1300 with NO prior context file read"
+    },
+    "DelegationEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "Only 1 file modified (< 4 threshold)"
+    },
+    "ToolUsageEvaluator": {
+      "passed": true,
+      "score": 100,
+      "violations": [],
+      "violation_count": 0,
+      "reason": "No bash commands used"
+    }
+  },
+  "overall": {
+    "should_pass": true,
+    "expected_score_min": 75,
+    "expected_score_max": 75,
+    "expected_violations_total": 1
+  }
+}

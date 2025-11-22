@@ -1,0 +1,30 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "Install dependencies"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "tool_call",
+    "messageId": "msg_test_002",
+    "data": {
+      "tool": "bash",
+      "input": {
+        "command": "npm install"
+      },
+      "status": "completed"
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "Dependencies installed successfully!"
+    }
+  }
+]

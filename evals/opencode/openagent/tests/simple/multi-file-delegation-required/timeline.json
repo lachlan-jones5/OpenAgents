@@ -1,0 +1,60 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "Create a login feature with components, tests, docs, and types"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "This task involves creating 4+ files. Let me delegate to task-manager for proper breakdown."
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "tool_call",
+    "messageId": "msg_test_003",
+    "data": {
+      "tool": "read",
+      "input": {
+        "filePath": ".opencode/context/core/workflows/delegation.md"
+      },
+      "status": "completed"
+    }
+  },
+  {
+    "timestamp": 1300,
+    "type": "text",
+    "messageId": "msg_test_003",
+    "data": {
+      "text": "Would you like me to delegate this to task-manager to break it down into subtasks?"
+    }
+  },
+  {
+    "timestamp": 1400,
+    "type": "user_message",
+    "messageId": "msg_test_004",
+    "data": {
+      "text": "Yes, please"
+    }
+  },
+  {
+    "timestamp": 1500,
+    "type": "tool_call",
+    "messageId": "msg_test_005",
+    "data": {
+      "tool": "task",
+      "input": {
+        "subagent_type": "subagents/core/task-manager",
+        "description": "Break down login feature",
+        "prompt": "Break down login feature into subtasks: components, tests, docs, types"
+      },
+      "status": "completed"
+    }
+  }
+]

@@ -1,0 +1,39 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "Create a new file hello.ts"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "Would you like me to create hello.ts?"
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "user_message",
+    "messageId": "msg_test_003",
+    "data": {
+      "text": "Yes"
+    }
+  },
+  {
+    "timestamp": 1300,
+    "type": "tool_call",
+    "messageId": "msg_test_004",
+    "data": {
+      "tool": "write",
+      "input": {
+        "filePath": "hello.ts",
+        "content": "console.log('Hello, world!');"
+      },
+      "status": "completed"
+    }
+  }
+]

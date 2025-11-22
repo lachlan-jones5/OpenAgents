@@ -1,0 +1,46 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "Install dependencies"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "Would you like me to run npm install to install the dependencies?"
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "user_message",
+    "messageId": "msg_test_003",
+    "data": {
+      "text": "Yes, go ahead"
+    }
+  },
+  {
+    "timestamp": 1300,
+    "type": "tool_call",
+    "messageId": "msg_test_004",
+    "data": {
+      "tool": "bash",
+      "input": {
+        "command": "npm install"
+      },
+      "status": "completed"
+    }
+  },
+  {
+    "timestamp": 1400,
+    "type": "text",
+    "messageId": "msg_test_004",
+    "data": {
+      "text": "Dependencies installed successfully!"
+    }
+  }
+]

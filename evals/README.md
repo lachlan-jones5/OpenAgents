@@ -1,219 +1,254 @@
 # OpenCode Agent Evaluation Framework
 
-## Overview
-
-Comprehensive evaluation framework for testing and validating OpenCode agent behavior against defined standards and rules.
-
-## Structure
-
-```
-evals/
-├── framework/              # Reusable evaluation framework
-│   ├── src/
-│   │   ├── collector/     # Session data collection
-│   │   ├── evaluators/    # Evaluation logic
-│   │   ├── runner/        # Test execution
-│   │   ├── reporters/     # Result reporting
-│   │   └── types/         # TypeScript types
-│   └── package.json
-│
-├── opencode/              # OpenCode agent evaluations
-│   ├── openagent/        # OpenAgent-specific tests
-│   ├── opencoder/        # OpenCoder-specific tests
-│   └── shared/           # Shared test cases
-│
-└── results/              # Test results (gitignored)
-    └── YYYY-MM-DD/
-```
+Comprehensive SDK-based evaluation framework for testing OpenCode agents with real execution, event streaming, and automated violation detection.
 
 ## Quick Start
-
-### 1. Install Framework
 
 ```bash
 cd evals/framework
 npm install
 npm run build
+
+# Run all tests (uses free model by default)
+npm run eval:sdk
+
+# Run with specific model
+npm run eval:sdk -- --model=anthropic/claude-3-5-sonnet-20241022
+
+# Run specific tests only
+npm run eval:sdk -- --pattern="developer/*.yaml"
+
+# Debug mode
+npm run eval:sdk -- --debug
 ```
 
-### 2. Run Evaluations
+## Directory Structure
+
+```
+evals/
+├── framework/                    # Core evaluation framework
+│   ├── src/
+│   │   ├── sdk/                 # SDK-based test runner
+│   │   │   ├── server-manager.ts
+│   │   │   ├── client-manager.ts
+│   │   │   ├── event-stream-handler.ts
+│   │   │   ├── test-runner.ts
+│   │   │   ├── test-case-schema.ts
+│   │   │   ├── test-case-loader.ts
+│   │   │   ├── run-sdk-tests.ts        # CLI entry point
+│   │   │   ├── show-test-details.ts    # Debug tool
+│   │   │   └── approval/               # Approval strategies
+│   │   ├── collector/           # Session data collection
+│   │   ├── evaluators/          # Rule violation detection
+│   │   └── types/               # TypeScript types
+│   ├── docs/
+│   │   └── test-design-guide.md # Test design philosophy
+│   ├── SDK_EVAL_README.md       # Comprehensive SDK guide
+│   ├── README.md                # Framework documentation
+│   └── package.json
+│
+├── opencode/openagent/          # OpenAgent-specific tests
+│   ├── sdk-tests/               # YAML test cases
+│   │   ├── developer/           # Developer workflow tests
+│   │   ├── business/            # Business analysis tests
+│   │   ├── creative/            # Content creation tests
+│   │   └── edge-case/           # Edge case tests
+│   ├── tests/simple/            # Synthetic test data
+│   ├── docs/
+│   │   ├── OPENAGENT_RULES.md   # Rules from openagent.md
+│   │   └── TEST_SCENARIOS.md    # Test scenario catalog
+│   ├── README.md                # OpenAgent test overview
+│   └── TEST_RESULTS.md          # Test results summary
+│
+└── results/                     # Test outputs (gitignored)
+```
+
+## Key Features
+
+### ✅ SDK-Based Execution
+- Uses official `@opencode-ai/sdk` for real agent interaction
+- Real-time event streaming (10+ events per test)
+- Actual session recording to disk
+
+### ✅ Cost-Aware Testing
+- **FREE by default** - Uses `opencode/grok-code-fast` (OpenCode Zen)
+- Override per-test or via CLI: `--model=provider/model`
+- No accidental API costs during development
+
+### ✅ Rule-Based Validation
+- 4 evaluators check compliance with openagent.md rules
+- Tests behavior (tool usage, approvals) not style (message counts)
+- Model-agnostic test design
+
+### ✅ Flexible Approval Handling
+- Auto-approve for happy path testing
+- Auto-deny for violation detection
+- Smart strategies with custom rules
+
+## Documentation
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| **[SDK_EVAL_README.md](framework/SDK_EVAL_README.md)** | Complete SDK testing guide | All users |
+| **[docs/test-design-guide.md](framework/docs/test-design-guide.md)** | Test design philosophy | Test authors |
+| **[openagent/docs/OPENAGENT_RULES.md](opencode/openagent/docs/OPENAGENT_RULES.md)** | Rules reference | Test authors |
+| **[openagent/docs/TEST_SCENARIOS.md](opencode/openagent/docs/TEST_SCENARIOS.md)** | Test scenario catalog | Test authors |
+
+## Usage Examples
+
+### Run SDK Tests
 
 ```bash
-# Evaluate a specific session
-npm run eval -- --agent openagent --session ses_xxxxx
+# All tests with free model
+npm run eval:sdk
 
-# Run all OpenAgent tests
-npm run eval -- --agent openagent --all
+# Specific category
+npm run eval:sdk -- --pattern="developer/*.yaml"
 
-# Run specific test case
-npm run eval -- --agent openagent --test approval-gates
+# Custom model
+npm run eval:sdk -- --model=anthropic/claude-3-5-sonnet-20241022
+
+# Debug single test
+npx tsx src/sdk/show-test-details.ts developer/install-dependencies.yaml
 ```
 
-### 3. View Results
+### Create New Tests
 
-```bash
-# View latest results
-cat evals/results/$(ls -t evals/results | head -1)/openagent/summary.json | jq
+```yaml
+# Example: developer/my-test.yaml
+id: dev-my-test-001
+name: My Test
+description: What this test does
 
-# Generate report
-npm run report -- --agent openagent --date 2025-11-21
+category: developer
+prompt: "Your test prompt here"
+
+# Behavior expectations (preferred)
+behavior:
+  mustUseTools: [bash]
+  requiresApproval: true
+
+# Expected violations
+expectedViolations:
+  - rule: approval-gate
+    shouldViolate: false    # Should NOT violate
+    severity: error
+
+approvalStrategy:
+  type: auto-approve
+
+timeout: 60000
+tags:
+  - approval-gate
+  - v2-schema
 ```
+
+See [test-design-guide.md](framework/docs/test-design-guide.md) for best practices.
 
 ## Framework Components
 
-### Collector
-Reads and parses OpenCode session data from `~/.local/share/opencode/`
-
-**Components:**
-- `SessionReader` - Read session files
-- `MessageParser` - Parse message structure
-- `TimelineBuilder` - Build event timeline
+### SDK Test Runner
+- **ServerManager** - Start/stop opencode server
+- **ClientManager** - Session and prompt management
+- **EventStreamHandler** - Real-time event capture
+- **TestRunner** - Test orchestration with evaluators
+- **ApprovalStrategies** - Auto-approve, deny, smart rules
 
 ### Evaluators
-Validate agent behavior against rules
+- **ApprovalGateEvaluator** - Checks approval before tool execution
+- **ContextLoadingEvaluator** - Verifies context files loaded first
+- **DelegationEvaluator** - Validates delegation for 4+ files
+- **ToolUsageEvaluator** - Checks bash vs specialized tools
 
-**Available Evaluators:**
-- `ApprovalGateEvaluator` - Check approval before execution
-- `ContextLoadingEvaluator` - Verify context loading
-- `DelegationEvaluator` - Validate delegation decisions
-- `ToolUsageEvaluator` - Check tool selection
-- `ModelSelectionEvaluator` - Validate model choices
-
-### Runner
-Execute test cases and collect results
-
-**Components:**
-- `TestRunner` - Run test suites
-- `SessionAnalyzer` - Analyze historical sessions
-- `LiveRunner` - Run live tests (future)
-
-### Reporters
-Generate test reports
-
-**Formats:**
-- Console (pretty output)
-- JSON (machine-readable)
-- Markdown (documentation)
-- HTML (dashboard, future)
-
-## Agent-Specific Tests
-
-### OpenAgent (`opencode/openagent/`)
-
-Tests for the universal OpenAgent:
-- Approval gate enforcement
-- Context loading compliance
-- Delegation appropriateness
-- Tool usage patterns
-- Model selection
-
-**Test Categories:**
-- Conversational (simple questions)
-- Task (file operations)
-- Complex (multi-file features)
-- Edge cases (errors, permissions)
-
-### OpenCoder (`opencode/opencoder/`)
-
-Tests for the OpenCoder agent (future)
-
-### Shared (`opencode/shared/`)
-
-Common test cases applicable to all agents
-
-## Test Case Format
-
-Test cases are defined in YAML:
-
+### Test Schema (v2)
 ```yaml
-test_cases:
-  - id: simple-question
-    name: "Simple Question (No Execution)"
-    description: "Ask a question that requires no execution tools"
-    category: conversational
-    input: "What does this code do?"
-    expected_behavior:
-      no_execution_tools: true
-      no_approval_required: true
-      response_provided: true
-    evaluators:
-      - approval-gate
-      - tool-usage
-    pass_threshold: 100
+behavior:              # What agent should do
+  mustUseTools: []
+  requiresApproval: bool
+  shouldDelegate: bool
+
+expectedViolations:    # What rules to check
+  - rule: approval-gate
+    shouldViolate: false
 ```
 
-## Evaluation Results
+See [SDK_EVAL_README.md](framework/SDK_EVAL_README.md) for complete API.
 
-Results include:
-- **Pass/Fail** - Did the test pass?
-- **Score** - 0-100 compliance score
-- **Violations** - List of rule violations
-- **Evidence** - Supporting data for violations
-- **Metadata** - Agent, model, timing, costs
+## Test Results
 
-**Example Result:**
-```json
-{
-  "testCaseId": "simple-question",
-  "sessionId": "ses_xxxxx",
-  "passed": true,
-  "score": 100,
-  "evaluationResults": [
-    {
-      "evaluator": "approval-gate",
-      "passed": true,
-      "score": 100,
-      "violations": []
-    }
-  ],
-  "metadata": {
-    "agent": "openagent",
-    "model": "claude-sonnet-4-20250514",
-    "duration": 7205,
-    "cost": 0.107
-  }
-}
+```bash
+npm run eval:sdk
+
+# Output:
+======================================================================
+TEST RESULTS
+======================================================================
+
+1. ✅ dev-install-deps-002 - Install Dependencies (v2)
+   Duration: 10659ms
+   Events: 12
+   Approvals: 0
+
+2. ❌ biz-data-analysis-001 - Business Data Analysis
+   Duration: 17512ms
+   Events: 18
+   Errors:
+     - Expected tool calls but no approvals requested
+
+======================================================================
+SUMMARY: 1/2 tests passed (1 failed)
+======================================================================
 ```
 
-## Scoring System
+## Model Configuration
 
-- **100** - Perfect compliance
-- **75-99** - Minor issues (warnings)
-- **50-74** - Moderate issues (violations)
-- **0-49** - Major issues (critical violations)
+### Free Tier (Default)
+```bash
+# Uses opencode/grok-code-fast (free)
+npm run eval:sdk
+```
 
-**Pass Threshold:** 75% (configurable per test)
+### Paid Models
+```bash
+# Claude 3.5 Sonnet
+npm run eval:sdk -- --model=anthropic/claude-3-5-sonnet-20241022
+
+# GPT-4 Turbo
+npm run eval:sdk -- --model=openai/gpt-4-turbo
+```
+
+### Per-Test Override
+```yaml
+# In test YAML file
+model: anthropic/claude-3-5-sonnet-20241022
+```
 
 ## Development
 
-### Adding New Evaluators
-
-1. Create evaluator in `framework/src/evaluators/`
-2. Extend `BaseEvaluator`
-3. Implement `evaluate()` method
-4. Add tests
-5. Register in evaluator registry
-
-### Adding New Test Cases
-
-1. Create YAML file in `opencode/{agent}/test-cases/`
-2. Define test case structure
-3. Specify expected behavior
-4. List evaluators to run
-5. Set pass threshold
-
-### Running Tests
-
+### Run Framework Tests
 ```bash
-# Framework tests
 cd evals/framework
 npm test
+```
 
-# Integration tests
-npm run test:integration
+### Build Framework
+```bash
+npm run build
+```
 
-# Test specific evaluator
-npm run test:evaluator -- approval-gate
+### Add New Evaluator
+1. Create in `src/evaluators/`
+2. Extend `BaseEvaluator`
+3. Implement `evaluate()` method
+4. Register in `EvaluatorRunner`
+
+### Debug Tests
+```bash
+# Show detailed test execution
+npx tsx src/sdk/show-test-details.ts path/to/test.yaml
+
+# Check session files
+ls ~/.local/share/opencode/storage/session/
 ```
 
 ## CI/CD Integration
@@ -231,44 +266,35 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
       - run: cd evals/framework && npm install
-      - run: npm run eval -- --agent openagent --all
-      - run: npm run report -- --format json
+      - run: npm run eval:sdk -- --no-evaluators
 ```
 
 ## Configuration
 
-### Framework Config (`framework/config.ts`)
-
+### Default Model
+Edit `src/sdk/test-runner.ts`:
 ```typescript
-export const config = {
-  projectPath: process.cwd(),
-  sessionStoragePath: '~/.local/share/opencode/',
-  resultsPath: 'evals/results/',
-  passThreshold: 75,
-  evaluators: ['approval-gate', 'context-loading', 'delegation', 'tool-usage']
-};
+defaultModel: config.defaultModel || 'opencode/grok-code-fast'
 ```
 
-### Agent Config (`opencode/openagent/config.yaml`)
-
-```yaml
-agent: openagent
-test_cases_path: ./test-cases
-sessions_path: ./sessions
-evaluators:
-  - approval-gate
-  - context-loading
-  - delegation
-  - tool-usage
-pass_threshold: 75
+### Evaluators
+Enable/disable in `TestRunner`:
+```typescript
+runEvaluators: config.runEvaluators ?? true
 ```
 
-## Related Documentation
+## Achievements
 
-- [Framework Architecture](./framework/README.md)
-- [OpenAgent Tests](./opencode/openagent/README.md)
-- [OpenCode Logging System](../dev/ai-tools/opencode/logging-and-session-storage.md)
-- [Agent Validator Plugin](../.opencode/plugin/docs/VALIDATOR_GUIDE.md)
+✅ Full SDK integration with `@opencode-ai/sdk@1.0.90`  
+✅ Real-time event streaming (12+ events per test)  
+✅ 4 evaluators integrated and working  
+✅ YAML-based test definitions with Zod validation  
+✅ CLI runner with detailed reporting  
+✅ Free model by default (no API costs)  
+✅ Model-agnostic test design  
+✅ Both positive and negative test support  
+
+**Status:** Production-ready for OpenAgent evaluation
 
 ## Contributing
 

@@ -1,0 +1,31 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "What does this code do?"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "tool_call",
+    "messageId": "msg_test_002",
+    "data": {
+      "tool": "read",
+      "input": {
+        "filePath": "app.ts"
+      },
+      "status": "completed",
+      "output": "function hello() { return 'hi'; }"
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "This code defines a simple function called `hello` that returns the string 'hi'. It's a basic TypeScript function."
+    }
+  }
+]

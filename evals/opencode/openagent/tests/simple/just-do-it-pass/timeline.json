@@ -1,0 +1,51 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "Create hello.ts, just do it, no need to ask"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "I'll create hello.ts for you. Let me first load the code standards."
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "tool_call",
+    "messageId": "msg_test_002",
+    "data": {
+      "tool": "read",
+      "input": {
+        "filePath": ".opencode/context/core/standards/code.md"
+      },
+      "status": "completed"
+    }
+  },
+  {
+    "timestamp": 1300,
+    "type": "tool_call",
+    "messageId": "msg_test_003",
+    "data": {
+      "tool": "write",
+      "input": {
+        "filePath": "hello.ts",
+        "content": "console.log('Hello, world!');"
+      },
+      "status": "completed"
+    }
+  },
+  {
+    "timestamp": 1400,
+    "type": "text",
+    "messageId": "msg_test_003",
+    "data": {
+      "text": "Created hello.ts successfully!"
+    }
+  }
+]

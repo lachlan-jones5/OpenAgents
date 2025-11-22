@@ -1,0 +1,31 @@
+[
+  {
+    "timestamp": 1000,
+    "type": "user_message",
+    "messageId": "msg_test_001",
+    "data": {
+      "text": "What are our top 5 products this quarter?"
+    }
+  },
+  {
+    "timestamp": 1100,
+    "type": "tool_call",
+    "messageId": "msg_test_002",
+    "data": {
+      "tool": "read",
+      "input": {
+        "filePath": "sales-data.json"
+      },
+      "status": "completed",
+      "output": "{\"products\": [{\"name\": \"Product A\", \"sales\": 1000}, {\"name\": \"Product B\", \"sales\": 800}]}"
+    }
+  },
+  {
+    "timestamp": 1200,
+    "type": "text",
+    "messageId": "msg_test_002",
+    "data": {
+      "text": "Based on the sales data, here are the top 5 products this quarter:\n\n1. Product A - $1,000 in sales\n2. Product B - $800 in sales\n..."
+    }
+  }
+]
