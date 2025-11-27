@@ -387,6 +387,16 @@
         ],
         "dependencies": [],
         "category": "standard"
+      },
+      {
+        "id": "commit-openagents",
+        "name": "Commit Openagents",
+        "type": "command",
+        "path": ".opencode/command/commit-openagents.md",
+        "description": "Smart commit command for opencode-agents repository with automatic validation and conventional commits",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
       }
     ],
     "tools": [
@@ -620,6 +630,16 @@
         ],
         "dependencies": [],
         "category": "standard"
+      },
+      {
+        "id": "system-builder-guide",
+        "name": "System Builder Guide",
+        "type": "context",
+        "path": ".opencode/context/system-builder-templates/SYSTEM-BUILDER-GUIDE.md",
+        "description": "System Builder Guide",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
       }
     ],
     "config": [
@@ -824,7 +844,7 @@
     }
   },
   "metadata": {
-    "lastUpdated": "2025-11-26",
+    "lastUpdated": "2025-11-27",
     "schemaVersion": "1.0.0"
   }
 }
