@@ -403,6 +403,7 @@
         "name": "Commit Openagents",
         "type": "command",
         "path": ".opencode/command/commit-openagents.md",
+<<<<<<< HEAD
         "description": "description: Smart commit command for opencode-agents repository with automatic validation and conventional commits",
         "tags": [],
         "dependencies": [],
@@ -424,6 +425,9 @@
         "type": "command",
         "path": ".opencode/command/test-new-command.md",
         "description": "description: \\\"Test command to verify auto-detection and registry updates work correctly\\\"",
+=======
+        "description": "Smart commit command for opencode-agents repository with automatic validation and conventional commits",
+>>>>>>> dd007a06ec4c80f5e9750cfed88b697e8df36bc8
         "tags": [],
         "dependencies": [],
         "category": "standard"
@@ -670,6 +674,7 @@
         "tags": [],
         "dependencies": [],
         "category": "standard"
+<<<<<<< HEAD
       },
       {
         "id": "subagent-template",
@@ -690,6 +695,8 @@
         "tags": [],
         "dependencies": [],
         "category": "standard"
+=======
+>>>>>>> dd007a06ec4c80f5e9750cfed88b697e8df36bc8
       }
     ],
     "config": [
