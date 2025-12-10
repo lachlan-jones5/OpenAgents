@@ -110,9 +110,10 @@ jobs:
             echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Architecture:**" >> $GITHUB_STEP_SUMMARY
-            echo "- Agent files (.opencode/agent/*.md) = Canonical defaults" >> $GITHUB_STEP_SUMMARY
+            echo "- Agent files (.opencode/agent/**/*.md) = Canonical defaults" >> $GITHUB_STEP_SUMMARY
             echo "- Prompt variants (.opencode/prompts/<agent>/<model>.md) = Model-specific" >> $GITHUB_STEP_SUMMARY
             echo "- default.md files should NOT exist" >> $GITHUB_STEP_SUMMARY
+            echo "- Agents organized in category subdirectories (core/, development/, content/, etc.)" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "See [CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) for details" >> $GITHUB_STEP_SUMMARY
             exit 1

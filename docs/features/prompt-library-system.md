@@ -10,7 +10,7 @@ Status: ✅ Production Ready
 ## 📋 Quick Links
 
 - [Main Prompts README](../../.opencode/prompts/README.md)
-- [OpenAgent Variants](../../.opencode/prompts/openagent/README.md)
+- [OpenAgent Variants](../../.opencode/prompts/core/openagent/README.md)
 - [Eval Framework Guide](../../evals/EVAL_FRAMEWORK_GUIDE.md)
 - [Test Suite Validation](../../evals/TEST_SUITE_VALIDATION.md)
 
@@ -74,7 +74,7 @@ See the comprehensive documentation files:
    - Testing workflow
    - Advanced usage
 
-2. **[OpenAgent Variants README](../../.opencode/prompts/openagent/README.md)**
+2. **[OpenAgent Variants README](../../.opencode/prompts/core/openagent/README.md)**
    - Capabilities matrix
    - Variant details
    - Test results
@@ -123,8 +123,8 @@ See the comprehensive documentation files:
 ### Key Files
 
 **Prompt Variants:**
-- `.opencode/prompts/openagent/*.md` - Variant files
-- `.opencode/prompts/openagent/results/*.json` - Per-variant results
+- `.opencode/prompts/core/openagent/*.md` - Variant files
+- `.opencode/prompts/core/openagent/results/*.json` - Per-variant results
 
 **Test Suites:**
 - `evals/agents/openagent/config/*.json` - Suite definitions
@@ -163,7 +163,7 @@ npm run eval:sdk -- --agent=openagent --prompt-variant=llama --pattern="01-criti
 
 ```bash
 # 1. Copy template
-cp .opencode/prompts/openagent/TEMPLATE.md .opencode/prompts/openagent/my-variant.md
+cp .opencode/prompts/core/openagent/TEMPLATE.md .opencode/prompts/core/openagent/my-variant.md
 
 # 2. Edit metadata and content
 # 3. Test

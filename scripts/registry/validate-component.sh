@@ -88,6 +88,29 @@ validate_directory_structure() {
             print_success "Directory exists: $dir"
         fi
     done
+    
+    # Check for category subdirectories (optional but recommended)
+    local category_dirs=(
+        ".opencode/agent/core"
+        ".opencode/agent/development"
+        ".opencode/agent/content"
+        ".opencode/agent/data"
+        ".opencode/agent/learning"
+        ".opencode/agent/product"
+    )
+    
+    local found_categories=0
+    for dir in "${category_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            ((found_categories++))
+        fi
+    done
+    
+    if [ $found_categories -gt 0 ]; then
+        print_success "Found $found_categories category subdirectories"
+    else
+        print_warning "No category subdirectories found (optional)"
+    fi
 }
 
 validate_registry() {
@@ -132,9 +155,13 @@ main() {
     validate_registry
     echo ""
     
-    # Validate all markdown files
+    # Validate all markdown files (excluding symlinks)
     echo "Validating markdown files..."
     while IFS= read -r -d '' file; do
+        # Skip symlinks
+        if [ -L "$file" ]; then
+            continue
+        fi
         validate_markdown_frontmatter "$file"
     done < <(find .opencode -name "*.md" -type f -print0 2>/dev/null)
     echo ""

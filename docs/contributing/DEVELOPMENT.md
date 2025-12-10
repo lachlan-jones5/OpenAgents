@@ -57,9 +57,16 @@ npm test
 ```
 opencode-agents/
 ├── .opencode/                    # OpenCode configuration
-│   ├── agent/                    # Agent prompts
-│   │   ├── openagent.md          # Main orchestrator (plan-first)
-│   │   ├── opencoder.md          # Development specialist
+│   ├── agent/                    # Agent prompts (category-based)
+│   │   ├── core/
+│   │   │   ├── openagent.md          # Universal orchestrator
+│   │   │   ├── opencoder.md          # Development specialist
+│   │   │   └── system-builder.md     # System architect
+│   │   ├── development/
+│   │   │   ├── frontend-specialist.md
+│   │   │   └── backend-specialist.md
+│   │   ├── content/
+│   │   │   └── copywriter.md
 │   │   └── subagents/            # Specialized subagents
 │   │       ├── code/             # Code-related subagents
 │   │       ├── core/             # Core functionality subagents
@@ -74,9 +81,12 @@ opencode-agents/
 │   │   ├── project/              # Project-specific context
 │   │   └── system-builder-templates/  # Templates
 │   ├── plugin/                   # Plugins and integrations
-│   ├── prompts/                  # Prompt library (model variants)
-│   │   ├── openagent/            # OpenAgent variants
-│   │   └── opencoder/            # OpenCoder variants
+│   ├── prompts/                  # Prompt library (model variants, category-based)
+│   │   ├── core/
+│   │   │   ├── openagent/            # OpenAgent variants
+│   │   │   └── opencoder/            # OpenCoder variants
+│   │   └── development/
+│   │       └── frontend-specialist/  # Frontend specialist variants
 │   └── tool/                     # Utility tools
 ├── evals/                        # Testing framework
 │   ├── agents/                   # Agent test suites
@@ -101,9 +111,12 @@ opencode-agents/
 ### Key Directories Explained
 
 #### `.opencode/agent/`
-Main agent prompts. These are the "brains" of the system:
-- **openagent.md** - Main orchestrator with plan-first workflow
-- **opencoder.md** - Development specialist for direct code execution
+Main agent prompts organized by category. These are the "brains" of the system:
+- **core/openagent.md** - Universal orchestrator with plan-first workflow
+- **core/opencoder.md** - Development specialist for direct code execution
+- **core/system-builder.md** - System architecture generator
+- **development/** - Development specialist agents (frontend, backend, devops)
+- **content/** - Content creation agents (copywriter, technical-writer)
 - **subagents/** - Specialized helpers for specific tasks
 
 #### `.opencode/command/`
@@ -117,9 +130,10 @@ Context files that agents load on-demand:
 - **project/** - Project-specific context (CLAUDE.md pattern)
 
 #### `.opencode/prompts/`
-Prompt library with model-specific variants:
+Prompt library with model-specific variants (category-based structure):
 - Allows experimentation without breaking main branch
 - Each variant has test results documented
+- Organized by category matching agent structure (core/, development/, etc.)
 
 #### `evals/`
 Comprehensive testing framework:
@@ -653,16 +667,16 @@ npm test -- --agent=my-agent --test=new-test-001
 
 ```bash
 # 1. Copy template
-cp .opencode/prompts/openagent/TEMPLATE.md .opencode/prompts/openagent/my-variant.md
+cp .opencode/prompts/core/openagent/TEMPLATE.md .opencode/prompts/core/openagent/my-variant.md
 
 # 2. Edit variant
-vim .opencode/prompts/openagent/my-variant.md
+vim .opencode/prompts/core/openagent/my-variant.md
 
 # 3. Test variant
-./scripts/prompts/test-prompt.sh openagent my-variant
+./scripts/prompts/test-prompt.sh core/openagent my-variant
 
 # 4. Update README with results
-vim .opencode/prompts/openagent/README.md
+vim .opencode/prompts/core/openagent/README.md
 ```
 
 ### Validate Before PR
@@ -737,8 +751,8 @@ make validate-registry
 - [Test Design Guide](../../evals/framework/docs/test-design-guide.md) - Writing effective tests
 
 ### Examples
-- [OpenAgent](../../.opencode/agent/openagent.md) - Main orchestrator example
-- [OpenCoder](../../.opencode/agent/opencoder.md) - Development specialist example
+- [OpenAgent](../../.opencode/agent/core/openagent.md) - Universal orchestrator example
+- [OpenCoder](../../.opencode/agent/core/opencoder.md) - Development specialist example
 - [Subagents](../../.opencode/agent/subagents/) - Specialized subagent examples
 - [Test Suites](../../evals/agents/) - Comprehensive test examples
 

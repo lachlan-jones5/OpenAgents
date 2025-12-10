@@ -1,8 +1,10 @@
 # Context Index
 
+## Core Context (Universal)
+
 Path: `.opencode/context/core/{category}/{file}`
 
-## Quick Map
+### Quick Map
 ```
 code        → standards/code.md       [critical] implement, refactor, architecture
 docs        → standards/docs.md       [critical] write docs, README, documentation
@@ -16,6 +18,54 @@ breakdown   → workflows/task-breakdown.md [high] break down, 4+ files → deps
 sessions    → workflows/sessions.md   [medium]   session management, cleanup
 ```
 
+### Categories
+
+**Standards** - Code quality, testing, documentation standards (critical priority)
+**Workflows** - Process templates for delegation, review, task breakdown (high priority)
+**System** - Documentation and guides (medium priority)
+
+---
+
+## Category-Specific Context
+
+### Development
+Path: `.opencode/context/development/{file}`
+
+```
+clean-code      → development/clean-code.md      [high] coding standards, best practices
+react-patterns  → development/react-patterns.md  [high] React, hooks, components
+api-design      → development/api-design.md      [high] REST, GraphQL, API versioning
+```
+
+**Used by**: frontend-specialist, backend-specialist, devops-specialist, codebase-agent
+
+### Content
+Path: `.opencode/context/content/{file}`
+
+```
+copywriting     → content/copywriting-frameworks.md [high] AIDA, PAS, persuasive writing
+tone-voice      → content/tone-voice.md             [high] brand voice, tone guidelines
+```
+
+**Used by**: copywriter, technical-writer
+
+### Product
+Path: `.opencode/context/product/{file}`
+
+*No context files yet. Category ready for product-related context.*
+
+### Data
+Path: `.opencode/context/data/{file}`
+
+*No context files yet. Category ready for data-related context.*
+
+### Learning
+Path: `.opencode/context/learning/{file}`
+
+*No context files yet. Category ready for learning-related context.*
+
+---
+
 ## Loading Instructions
 
 **For common tasks, use quick map above. For keyword matching, scan triggers.**
@@ -23,9 +73,3 @@ sessions    → workflows/sessions.md   [medium]   session management, cleanup
 **Format:** `id → path [priority] triggers → deps: dependencies`
 
 **Dependencies:** Load dependent contexts alongside main context for complete guidelines.
-
-## Categories
-
-**Standards** - Code quality, testing, documentation standards (critical priority)
-**Workflows** - Process templates for delegation, review, task breakdown (high priority)
-**System** - Documentation and guides (medium priority)

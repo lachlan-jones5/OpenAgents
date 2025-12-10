@@ -34,10 +34,15 @@ echo "  • Agent files (.opencode/agent/*.md) = Canonical defaults"
 echo "  • Prompt variants (.opencode/prompts/<agent>/<model>.md) = Model-specific optimizations"
 echo ""
 
-# Find all agent markdown files (excluding subagents)
-for agent_file in "$AGENT_DIR"/*.md; do
+# Find all agent markdown files (including category subdirectories, excluding subagents)
+while IFS= read -r agent_file; do
   # Skip if no files found
   [ -e "$agent_file" ] || continue
+  
+  # Skip subagents directory
+  if [[ "$agent_file" == *"/subagents/"* ]]; then
+    continue
+  fi
   
   agent_name=$(basename "$agent_file" .md)
   prompts_subdir="$PROMPTS_DIR/$agent_name"
@@ -80,7 +85,7 @@ for agent_file in "$AGENT_DIR"/*.md; do
       echo "   Variants: none (using default for all models)"
     fi
   fi
-done
+done < <(find "$AGENT_DIR" -type f -name "*.md" ! -name "README.md" ! -name "index.md" 2>/dev/null)
 
 echo ""
 

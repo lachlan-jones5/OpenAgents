@@ -6,10 +6,15 @@
  * - Switch prompts (copy variant → agent location)
  * - Restore default after tests
  * - Extract recommended models from metadata
+ * 
+ * Supports both old and new agent path formats:
+ * - Old: "openagent" → ".opencode/agent/openagent.md"
+ * - New: "core/openagent" → ".opencode/agent/core/openagent.md"
  */
 
 import { readFileSync, writeFileSync, copyFileSync, existsSync, readdirSync, unlinkSync } from 'fs';
 import { join } from 'path';
+import { resolveAgentPath } from '../config.js';
 
 /**
  * Prompt metadata from YAML frontmatter
@@ -74,8 +79,10 @@ export class PromptManager {
   
   /**
    * Check if a prompt variant exists
+   * Supports both old and new agent path formats
    */
   variantExists(agent: string, variant: string): boolean {
+    // For category-based agents, prompts are in matching category structure
     const variantPath = join(this.promptsDir, agent, `${variant}.md`);
     return existsSync(variantPath);
   }
@@ -130,10 +137,15 @@ export class PromptManager {
    * 1. Backs up current agent prompt
    * 2. Copies variant to agent location
    * 3. Returns metadata for the variant
+   * 
+   * Supports both old and new agent path formats:
+   * - Old: agent="openagent" → ".opencode/agent/openagent.md"
+   * - New: agent="core/openagent" → ".opencode/agent/core/openagent.md"
    */
   switchToVariant(agent: string, variant: string): SwitchResult {
     const variantPath = join(this.promptsDir, agent, `${variant}.md`);
-    const agentPath = join(this.agentDir, `${agent}.md`);
+    // Use resolveAgentPath to support both flat and category-based structures
+    const agentPath = resolveAgentPath(agent, this.agentDir.replace('/.opencode/agent', ''));
     
     // Check variant exists
     if (!existsSync(variantPath)) {
@@ -183,10 +195,12 @@ export class PromptManager {
    * Restore the default prompt for an agent
    * 
    * Copies default.md to agent location (or restores backup if no default)
+   * Supports both old and new agent path formats
    */
   restoreDefault(agent: string): boolean {
     const defaultPath = join(this.promptsDir, agent, 'default.md');
-    const agentPath = join(this.agentDir, `${agent}.md`);
+    // Use resolveAgentPath to support both flat and category-based structures
+    const agentPath = resolveAgentPath(agent, this.agentDir.replace('/.opencode/agent', ''));
     
     try {
       if (existsSync(defaultPath)) {

@@ -66,7 +66,10 @@ git diff --cached
 
 **Scopes for this repo:**
 - `evals` - Evaluation framework changes
-- `agents` - Agent configuration changes (openagent, opencoder)
+- `agents` - Agent configuration changes (core agents: openagent, opencoder, system-builder)
+- `agents/dev` - Development category agents (frontend-specialist, backend-specialist, etc.)
+- `agents/content` - Content category agents (copywriter, technical-writer)
+- `agents/data` - Data category agents (data-analyst)
 - `subagents` - Subagent changes (task-manager, coder, tester, etc.)
 - `commands` - Slash command changes
 - `context` - Context file changes
@@ -78,6 +81,8 @@ git diff --cached
 ```
 feat(evals): add parallel test execution support
 fix(agents): correct delegation logic in openagent
+fix(agents/dev): update frontend-specialist validation rules
+feat(agents/content): add new copywriter capabilities
 refactor(evals): split test-runner into modular components
 test(evals): add smoke tests for openagent
 docs(readme): update installation instructions

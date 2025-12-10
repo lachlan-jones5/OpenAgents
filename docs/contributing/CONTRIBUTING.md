@@ -14,11 +14,27 @@ Thank you for your interest in contributing! This guide will help you add new co
 ```
 opencode-agents/
 ├── .opencode/
-│   ├── agent/              # Agents
-│   │   ├── openagent.md        # Main orchestrator (always default in PRs)
-│   │   ├── opencoder.md        # Development specialist
+│   ├── agent/              # Agents (category-based)
+│   │   ├── core/
+│   │   │   ├── openagent.md        # Universal orchestrator
+│   │   │   ├── opencoder.md        # Development specialist
+│   │   │   └── system-builder.md   # System architect
+│   │   ├── development/
+│   │   │   ├── frontend-specialist.md
+│   │   │   └── backend-specialist.md
+│   │   ├── content/
+│   │   │   └── copywriter.md
 │   │   └── subagents/          # Specialized subagents
 │   ├── prompts/            # Prompt library (variants and experiments)
+│   │   ├── core/
+│   │   │   ├── openagent/
+│   │   │   │   ├── gpt.md
+│   │   │   │   └── llama.md
+│   │   │   └── opencoder/
+│   │   │       └── gpt.md
+│   │   └── development/
+│   │       └── frontend-specialist/
+│   │           └── gpt.md
 │   ├── command/            # Slash commands
 │   ├── tool/               # Utility tools
 │   ├── plugin/             # Integrations
@@ -36,11 +52,17 @@ opencode-agents/
     └── guides/             # User guides
 ```
 
+> **Note**: Agent files now use category-based organization. Core agents are in `core/`, 
+> development specialists in `development/`, etc. When referencing agents, use the 
+> category prefix: `core/openagent`, `development/frontend-specialist`.
+
 ### Key Directories
 
-- **`.opencode/agent/`** - Main agent prompts (openagent.md, opencoder.md)
+- **`.opencode/agent/core/`** - Core system agents (openagent.md, opencoder.md, system-builder.md)
+- **`.opencode/agent/development/`** - Development specialist agents
+- **`.opencode/agent/content/`** - Content creation agents
 - **`.opencode/agent/subagents/`** - Specialized subagents
-- **`.opencode/prompts/`** - Library of prompt variants for different models
+- **`.opencode/prompts/`** - Library of prompt variants for different models (category-based)
 - **`evals/`** - Testing framework and test suites
 - **`scripts/`** - Automation and utility scripts
 - **`docs/`** - Documentation and guides
@@ -217,17 +239,17 @@ OpenCode uses a model-specific prompt library to support different AI models whi
 
 ```bash
 # Test a specific variant
-./scripts/prompts/test-prompt.sh openagent sonnet-4
+./scripts/prompts/test-prompt.sh core/openagent sonnet-4
 
 # View results
-cat .opencode/prompts/openagent/results/sonnet-4-results.json
+cat .opencode/prompts/core/openagent/results/sonnet-4-results.json
 ```
 
 #### Creating a New Variant
 
 1. **Copy the template:**
    ```bash
-   cp .opencode/prompts/openagent/TEMPLATE.md .opencode/prompts/openagent/my-variant.md
+   cp .opencode/prompts/core/openagent/TEMPLATE.md .opencode/prompts/core/openagent/my-variant.md
    ```
 
 2. **Edit your variant:**
@@ -237,11 +259,11 @@ cat .opencode/prompts/openagent/results/sonnet-4-results.json
 
 3. **Test it:**
    ```bash
-   ./scripts/prompts/test-prompt.sh openagent my-variant
+   ./scripts/prompts/test-prompt.sh core/openagent my-variant
    ```
 
 4. **Update the README:**
-   - Add your variant to the capabilities table in `.opencode/prompts/openagent/README.md`
+   - Add your variant to the capabilities table in `.opencode/prompts/core/openagent/README.md`
    - Document test results
    - Explain what it optimizes for
 
@@ -249,7 +271,7 @@ cat .opencode/prompts/openagent/results/sonnet-4-results.json
    - Include your variant file (e.g., `my-variant.md`)
    - Include updated README with results
    - **Do NOT change the default prompt**
-   - **Do NOT change `.opencode/agent/openagent.md`**
+   - **Do NOT change `.opencode/agent/core/openagent.md`**
 
 #### PR Requirements for Prompts
 
@@ -261,8 +283,8 @@ Before submitting a PR:
 ./scripts/prompts/validate-pr.sh
 
 # If validation fails, restore defaults
-./scripts/prompts/use-prompt.sh openagent default
-./scripts/prompts/use-prompt.sh opencoder default
+./scripts/prompts/use-prompt.sh core/openagent default
+./scripts/prompts/use-prompt.sh core/opencoder default
 ```
 
 #### Why This System?
@@ -280,19 +302,19 @@ When a variant proves superior:
 
 1. **Verify test results:**
    ```bash
-   cat .opencode/prompts/openagent/results/variant-results.json
+   cat .opencode/prompts/core/openagent/results/variant-results.json
    ```
 
 2. **Update agent file (canonical default):**
    ```bash
-   cp .opencode/prompts/openagent/variant.md .opencode/agent/openagent.md
+   cp .opencode/prompts/core/openagent/variant.md .opencode/agent/core/openagent.md
    ```
 
 3. **Update capabilities table** in README
 
 4. **Commit with clear message:**
    ```bash
-   git add .opencode/agent/openagent.md
+   git add .opencode/agent/core/openagent.md
    git commit -m "feat(openagent): promote variant to default - improved X by Y%"
    ```
 

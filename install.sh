@@ -47,7 +47,20 @@ fi
 REPO_URL="https://github.com/darrenhinde/OpenAgents"
 BRANCH="${OPENCODE_BRANCH:-main}"  # Allow override via environment variable
 RAW_URL="https://raw.githubusercontent.com/darrenhinde/OpenAgents/${BRANCH}"
-REGISTRY_URL="${RAW_URL}/registry.json"
+
+# Registry URL - supports local fallback for development
+# Priority: 1) REGISTRY_URL env var, 2) Local registry.json, 3) Remote GitHub
+if [ -n "$REGISTRY_URL" ]; then
+    # Use explicitly set REGISTRY_URL (for testing)
+    :
+elif [ -f "./registry.json" ]; then
+    # Use local registry.json if it exists (for development)
+    REGISTRY_URL="file://$(pwd)/registry.json"
+else
+    # Default to remote GitHub registry
+    REGISTRY_URL="${RAW_URL}/registry.json"
+fi
+
 INSTALL_DIR="${OPENCODE_INSTALL_DIR:-.opencode}"  # Allow override via environment variable
 TEMP_DIR="/tmp/opencode-installer-$$"
 
@@ -256,12 +269,24 @@ fetch_registry() {
     
     mkdir -p "$TEMP_DIR"
     
-    if ! curl -fsSL "$REGISTRY_URL" -o "$TEMP_DIR/registry.json"; then
-        print_error "Failed to fetch registry from $REGISTRY_URL"
-        exit 1
+    # Handle local file:// URLs
+    if [[ "$REGISTRY_URL" == file://* ]]; then
+        local local_path="${REGISTRY_URL#file://}"
+        if [ -f "$local_path" ]; then
+            cp "$local_path" "$TEMP_DIR/registry.json"
+            print_success "Using local registry: $local_path"
+        else
+            print_error "Local registry not found: $local_path"
+            exit 1
+        fi
+    else
+        # Fetch from remote URL
+        if ! curl -fsSL "$REGISTRY_URL" -o "$TEMP_DIR/registry.json"; then
+            print_error "Failed to fetch registry from $REGISTRY_URL"
+            exit 1
+        fi
+        print_success "Registry fetched successfully"
     fi
-    
-    print_success "Registry fetched successfully"
 }
 
 get_profile_components() {

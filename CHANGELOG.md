@@ -5,33 +5,88 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.0] - 2025-12-10
+
+### Added
+- **Category-Based Agent Organization**: Agents now organized by domain in subdirectories
+  - `core/` - Core system agents (openagent, opencoder, system-builder)
+  - `development/` - Development specialists (frontend-specialist, backend-specialist, devops-specialist, codebase-agent)
+  - `content/` - Content creation agents (copywriter, technical-writer)
+  - `data/` - Data and analysis agents (data-analyst)
+  - `product/` - Product management agents (directory created, ready for agents)
+  - `learning/` - Education and coaching agents (directory created, ready for agents)
+- **Category Metadata Files**: Each category has `0-category.json` documenting common subagents, tools, and context
+- **Subagent Organization**: 13 subagents organized into 4 categories (code, core, system-builder, utils)
+- **Local Registry Fallback**: Install script now supports local `registry.json` for development/testing
+- **Enhanced Registry Validation**: Added checks for duplicate IDs and category consistency
+- **Comprehensive Test Suite**: 15 automated validation tests for category system
+- **Audit Tools**: Scripts to verify migration completeness and system integrity
+
+### Changed
+- **Agent File Structure**: Agents moved from flat structure to category-based organization
+  - Example: `.opencode/agent/openagent.md` → `.opencode/agent/core/openagent.md`
+  - Example: `.opencode/agent/opencoder.md` → `.opencode/agent/core/opencoder.md`
+- **Registry Schema**: Updated to include category-based paths for all agents
+- **Eval Framework**: Enhanced with path resolution supporting both agent IDs and category paths
+  - `--agent=openagent` resolves to `core/openagent` (backward compatible)
+  - `--agent=core/openagent` works directly (new format)
+- **Documentation**: Updated all docs to reference category-based structure
+- **Install Script**: Enhanced with local registry fallback for offline/development use
+
+### Fixed
+- **Frontend Specialist**: Renamed `frontend-design-agent.md` to `frontend-specialist.md` for consistency
+- **Eval Directory Structure**: Archived legacy flat eval structure to `_archive/` for clarity
+- **Registry Validation**: Fixed validation script to handle category-based paths correctly
+
+### Developer Experience
+- **Backward Compatibility**: Agent IDs like `openagent` still work via path resolution
+- **Local Testing**: No need to push to GitHub to test registry changes
+- **Clear Organization**: Agents grouped by domain make discovery easier
+- **Validation Tools**: Automated tests ensure system integrity
+
+### Migration Notes
+- **Agent Paths**: Update references from flat to category-based paths
+  - Old: `.opencode/agent/openagent.md`
+  - New: `.opencode/agent/core/openagent.md`
+- **Eval Framework**: Both formats work due to path resolution
+  - `--agent=openagent` (backward compatible)
+  - `--agent=core/openagent` (new format)
+- **No Breaking Changes**: Path resolution maintains backward compatibility
+
+### Technical Details
+- **Files Modified**: 14+ files updated for category structure
+- **Agents Organized**: 23 total agents (10 category agents, 13 subagents)
+- **Test Coverage**: 15/15 validation tests passing (100%)
+- **Audit Status**: 8/8 checks passing (100%)
+
 ## [0.3.1] - 2025-12-09
 
-### Changes
-- fix(ci): check only commit title for skip patterns (#46)
-
-
-_No unreleased changes yet._
+### Fixed
+- CI: Check only commit title for skip patterns (#46)
 
 ## [0.0.2] - 2025-11-29
 
 ### Added
-- New `ExecutionBalanceEvaluator` in `evals/framework` to assess read vs execution ordering and ratio.
-- Contributor guide: `docs/contributing/ADDING_EVALUATOR.md` (English) describing evaluator design principles.
-- Test cases under `evals/agents/openagent/tests/10-execution-balance/` (positive & negative scenarios).
+- New `ExecutionBalanceEvaluator` in `evals/framework` to assess read vs execution ordering and ratio
+- Contributor guide: `docs/contributing/ADDING_EVALUATOR.md` describing evaluator design principles
+- Test cases under `evals/agents/openagent/tests/10-execution-balance/` (positive & negative scenarios)
 
 ### Changed
-- Framework README updated with section documenting `ExecutionBalanceEvaluator` and violation codes.
+- Framework README updated with section documenting `ExecutionBalanceEvaluator` and violation codes
 
 ---
 
 ## Version Format
 
 ```
-v0.0.X
+v0.X.Y
 │ │ │
-│ │ └─ Patch version (increments with each release)
-│ └─── Minor version (feature additions)
-└───── Major version (breaking changes)
+│ │ └─ Patch version (bug fixes, minor changes)
+│ └─── Minor version (new features, non-breaking changes)
+└───── Major version (breaking changes, major milestones)
 ```
+
+### Version History
+- **0.5.0** - Category-based agent organization system
+- **0.3.1** - CI improvements
+- **0.0.2** - Execution balance evaluator

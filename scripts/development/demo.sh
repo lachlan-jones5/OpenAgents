@@ -84,9 +84,11 @@ show_repo_structure() {
   
   cat << EOF
 ${GREEN}.opencode/${NC}
-├── agent/              ${YELLOW}# Agents${NC}
-│   ├── openagent.md        ${YELLOW}# Main orchestrator${NC}
-│   ├── opencoder.md        ${YELLOW}# Development specialist${NC}
+├── agent/              ${YELLOW}# Agents (category-based)${NC}
+│   ├── core/
+│   │   ├── openagent.md    ${YELLOW}# Universal orchestrator${NC}
+│   │   └── opencoder.md    ${YELLOW}# Development specialist${NC}
+│   ├── development/        ${YELLOW}# Development specialists${NC}
 │   └── subagents/          ${YELLOW}# Specialized subagents${NC}
 ├── prompts/            ${YELLOW}# Prompt library (variants)${NC}
 ├── command/            ${YELLOW}# Slash commands${NC}
@@ -116,13 +118,13 @@ show_agent_system() {
   
   print_section "Main Agents"
   
-  if [ -f ".opencode/agent/openagent.md" ]; then
-    print_success "openagent.md - Main orchestrator agent"
+  if [ -f ".opencode/agent/core/openagent.md" ]; then
+    print_success "core/openagent.md - Universal orchestrator agent"
     echo "   Handles planning, delegation, and workflow management"
   fi
   
-  if [ -f ".opencode/agent/opencoder.md" ]; then
-    print_success "opencoder.md - Development specialist"
+  if [ -f ".opencode/agent/core/opencoder.md" ]; then
+    print_success "core/opencoder.md - Development specialist"
     echo "   Focused on writing clean, maintainable code"
   fi
   
@@ -154,10 +156,10 @@ show_prompt_library() {
   cat << EOF
 The prompt library allows different AI models to use optimized prompts:
 
-${GREEN}.opencode/agent/${NC}
+${GREEN}.opencode/agent/core/${NC}
 └── openagent.md        ${YELLOW}# Canonical default (Claude-optimized)${NC}
 
-${GREEN}.opencode/prompts/openagent/${NC}
+${GREEN}.opencode/prompts/core/openagent/${NC}
 ├── gpt.md              ${YELLOW}# GPT-4 optimized${NC}
 ├── gemini.md           ${YELLOW}# Gemini optimized${NC}
 ├── grok.md             ${YELLOW}# Grok optimized${NC}
@@ -242,13 +244,13 @@ EOF
   
   cat << EOF
 ${BLUE}Test a prompt variant:${NC}
-  ./scripts/prompts/test-prompt.sh openagent sonnet-4
+  ./scripts/prompts/test-prompt.sh core/openagent sonnet-4
 
 ${BLUE}Validate PR:${NC}
   ./scripts/prompts/validate-pr.sh
 
 ${BLUE}Use a variant:${NC}
-  ./scripts/prompts/use-prompt.sh openagent sonnet-4
+  ./scripts/prompts/use-prompt.sh core/openagent sonnet-4
 
 EOF
   
@@ -262,17 +264,17 @@ show_contributing() {
   
   cat << EOF
 ${BLUE}1. Create a prompt variant:${NC}
-   cp .opencode/prompts/openagent/TEMPLATE.md .opencode/prompts/openagent/my-variant.md
+   cp .opencode/prompts/core/openagent/TEMPLATE.md .opencode/prompts/core/openagent/my-variant.md
 
 ${BLUE}2. Edit your variant:${NC}
    # Optimize for your target model
-   vim .opencode/prompts/openagent/my-variant.md
+   vim .opencode/prompts/core/openagent/my-variant.md
 
 ${BLUE}3. Test it:${NC}
-   ./scripts/prompts/test-prompt.sh openagent my-variant
+   ./scripts/prompts/test-prompt.sh core/openagent my-variant
 
 ${BLUE}4. Document results:${NC}
-   # Update .opencode/prompts/openagent/README.md with test results
+   # Update .opencode/prompts/core/openagent/README.md with test results
 
 ${BLUE}5. Submit PR:${NC}
    # Include your variant and results

@@ -1,5 +1,6 @@
 {
-  "version": "1.0.0",
+  "version": "2.0.0",
+  "schema_version": "2.0.0",
   "repository": "https://github.com/darrenhinde/OpenAgents",
   "categories": {
     "essential": "Minimal components for basic functionality",
@@ -14,7 +15,11 @@
         "id": "opencoder",
         "name": "OpenCoder",
         "type": "agent",
-        "path": ".opencode/agent/opencoder.md",
+        "path": ".opencode/agent/core/opencoder.md",
+        "legacy_path": ".opencode/agent/opencoder.md",
+        "aliases": [
+          "opencoder"
+        ],
         "description": "Specialized development agent for complex coding, architecture, and multi-file refactoring",
         "tags": [
           "development",
@@ -36,7 +41,11 @@
         "id": "openagent",
         "name": "OpenAgent",
         "type": "agent",
-        "path": ".opencode/agent/openagent.md",
+        "path": ".opencode/agent/core/openagent.md",
+        "legacy_path": ".opencode/agent/openagent.md",
+        "aliases": [
+          "openagent"
+        ],
         "description": "Universal agent for answering queries, executing tasks, and coordinating workflows across any domain",
         "tags": [
           "universal",
@@ -53,7 +62,7 @@
         "id": "system-builder",
         "name": "System Builder",
         "type": "agent",
-        "path": ".opencode/agent/system-builder.md",
+        "path": ".opencode/agent/core/system-builder.md",
         "description": "Generates complete context-aware AI systems from user requirements",
         "tags": [
           "system-generation",
@@ -74,11 +83,71 @@
         "id": "codebase-agent",
         "name": "Codebase Agent",
         "type": "agent",
-        "path": ".opencode/agent/codebase-agent.md",
-        "description": "Multi-language implementation agent for modular and functional development\\\"",
+        "path": ".opencode/agent/development/codebase-agent.md",
+        "description": "Multi-language implementation agent for modular and functional development",
         "tags": [],
         "dependencies": [],
         "category": "standard"
+      },
+      {
+        "id": "devops-specialist",
+        "name": "Devops Specialist",
+        "type": "agent",
+        "path": ".opencode/agent/development/devops-specialist.md",
+        "description": "Expert in CI/CD, infrastructure as code, and deployment automation",
+        "tags": [],
+        "dependencies": [],
+        "category": "development"
+      },
+      {
+        "id": "frontend-specialist",
+        "name": "Frontend Specialist",
+        "type": "agent",
+        "path": ".opencode/agent/development/frontend-specialist.md",
+        "description": "Expert in React, Vue, and modern CSS architecture",
+        "tags": [],
+        "dependencies": [],
+        "category": "development"
+      },
+      {
+        "id": "backend-specialist",
+        "name": "Backend Specialist",
+        "type": "agent",
+        "path": ".opencode/agent/development/backend-specialist.md",
+        "description": "Expert in API design, database architecture, and server-side development",
+        "tags": [],
+        "dependencies": [],
+        "category": "development"
+      },
+      {
+        "id": "technical-writer",
+        "name": "Technical Writer",
+        "type": "agent",
+        "path": ".opencode/agent/content/technical-writer.md",
+        "description": "Expert in documentation, API docs, and technical communication",
+        "tags": [],
+        "dependencies": [],
+        "category": "content"
+      },
+      {
+        "id": "copywriter",
+        "name": "Copywriter",
+        "type": "agent",
+        "path": ".opencode/agent/content/copywriter.md",
+        "description": "Expert in persuasive writing, marketing copy, and brand messaging",
+        "tags": [],
+        "dependencies": [],
+        "category": "content"
+      },
+      {
+        "id": "data-analyst",
+        "name": "Data Analyst",
+        "type": "agent",
+        "path": ".opencode/agent/data/data-analyst.md",
+        "description": "Expert in data analysis, visualization, and statistical insights",
+        "tags": [],
+        "dependencies": [],
+        "category": "data"
       }
     ],
     "subagents": [
@@ -427,6 +496,26 @@
         "tags": [],
         "dependencies": [],
         "category": "standard"
+      },
+      {
+        "id": "create-tests",
+        "name": "Create Tests",
+        "type": "command",
+        "path": ".opencode/command/openagents/new-agents/create-tests.md",
+        "description": "description: \\\"Generate comprehensive test suites for OpenCode agents with 8 essential test types\\\"",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "create-agent",
+        "name": "Create Agent",
+        "type": "command",
+        "path": ".opencode/command/openagents/new-agents/create-agent.md",
+        "description": "description: \\\"Create new OpenCode agents following research-backed best practices (Anthropic 2025)\\\"",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
       }
     ],
     "tools": [
@@ -690,6 +779,106 @@
         "tags": [],
         "dependencies": [],
         "category": "standard"
+      },
+      {
+        "id": "clean-code",
+        "name": "Clean Code",
+        "type": "context",
+        "path": ".opencode/context/development/clean-code.md",
+        "description": "Clean Code Principles",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "react-patterns",
+        "name": "React Patterns",
+        "type": "context",
+        "path": ".opencode/context/development/react-patterns.md",
+        "description": "React Patterns & Best Practices",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "api-design",
+        "name": "Api Design",
+        "type": "context",
+        "path": ".opencode/context/development/api-design.md",
+        "description": "API Design Patterns",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "copywriting-frameworks",
+        "name": "Copywriting Frameworks",
+        "type": "context",
+        "path": ".opencode/context/content/copywriting-frameworks.md",
+        "description": "Copywriting Frameworks",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "tone-voice",
+        "name": "Tone Voice",
+        "type": "context",
+        "path": ".opencode/context/content/tone-voice.md",
+        "description": "Tone & Voice Guidelines",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "design-iteration",
+        "name": "Design Iteration",
+        "type": "context",
+        "path": ".opencode/context/core/workflows/design-iteration.md",
+        "description": "Design Iteration Workflow",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "design-assets",
+        "name": "Design Assets",
+        "type": "context",
+        "path": ".opencode/context/development/design-assets.md",
+        "description": "Design Assets",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "ui-styling-standards",
+        "name": "Ui Styling Standards",
+        "type": "context",
+        "path": ".opencode/context/development/ui-styling-standards.md",
+        "description": "UI Styling Standards",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "animation-patterns",
+        "name": "Animation Patterns",
+        "type": "context",
+        "path": ".opencode/context/development/animation-patterns.md",
+        "description": "Animation Patterns",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "design-systems",
+        "name": "Design Systems",
+        "type": "context",
+        "path": ".opencode/context/development/design-systems.md",
+        "description": "Design Systems",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
       }
     ],
     "config": [
@@ -894,7 +1083,7 @@
     }
   },
   "metadata": {
-    "lastUpdated": "2025-11-28",
+    "lastUpdated": "2025-12-10",
     "schemaVersion": "1.0.0"
   }
 }

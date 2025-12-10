@@ -21,7 +21,7 @@ NC='\033[0m'
 
 # Configuration
 REGISTRY_FILE="registry.json"
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 AUTO_ADD=false
 DRY_RUN=false
 VALIDATE_EXISTING=true
@@ -187,13 +187,30 @@ run_security_checks() {
 
 find_similar_path() {
     local wrong_path=$1
-    local threshold=3  # Maximum edit distance
     
     # Get directory and filename
     local dir=$(dirname "$wrong_path")
     local filename=$(basename "$wrong_path")
     
-    # Search for similar files in the expected directory and nearby
+    # First, try to find exact filename match in category subdirectories
+    # e.g., .opencode/agent/opencoder.md → .opencode/agent/core/opencoder.md
+    local base_dir=$(echo "$dir" | cut -d'/' -f1-2)  # e.g., .opencode/agent
+    
+    if [ -d "$REPO_ROOT/$base_dir" ]; then
+        # Search recursively in the base directory for exact filename match
+        while IFS= read -r candidate; do
+            local candidate_rel="${candidate#$REPO_ROOT/}"
+            local candidate_name=$(basename "$candidate")
+            
+            # Exact filename match
+            if [[ "$candidate_name" == "$filename" ]]; then
+                echo "$candidate_rel"
+                return 0
+            fi
+        done < <(find "$REPO_ROOT/$base_dir" -type f -name "$filename" 2>/dev/null)
+    fi
+    
+    # Fallback: search for similar names in the entire .opencode directory
     local search_dirs=("$REPO_ROOT/$dir" "$REPO_ROOT/.opencode")
     
     for search_dir in "${search_dirs[@]}"; do
@@ -206,7 +223,7 @@ find_similar_path() {
             local candidate_rel="${candidate#$REPO_ROOT/}"
             local candidate_name=$(basename "$candidate")
             
-            # Simple similarity check (could be enhanced with Levenshtein distance)
+            # Simple similarity check
             if [[ "$candidate_name" == *"$filename"* ]] || [[ "$filename" == *"$candidate_name"* ]]; then
                 echo "$candidate_rel"
                 return 0
@@ -338,7 +355,7 @@ extract_metadata_from_file() {
     # Try to extract from frontmatter (YAML)
     if grep -q "^---$" "$file" 2>/dev/null; then
         # Extract description from frontmatter
-        description=$(sed -n '/^---$/,/^---$/p' "$file" | grep "^description:" | sed 's/description: *"\?\(.*\)"\?/\1/' | head -1)
+        description=$(sed -n '/^---$/,/^---$/p' "$file" | grep "^description:" | sed 's/^description: *//; s/^"//; s/"$//' | head -1)
     fi
     
     # If no description in frontmatter, try to get from first heading or paragraph
@@ -359,6 +376,8 @@ extract_metadata_from_file() {
 detect_component_type() {
     local path=$1
     
+    # Handle category-based paths (e.g., .opencode/agent/core/openagent.md)
+    # and flat paths (e.g., .opencode/agent/openagent.md)
     if [[ "$path" == *"/agent/subagents/"* ]]; then
         echo "subagent"
     elif [[ "$path" == *"/agent/"* ]]; then
@@ -373,6 +392,29 @@ detect_component_type() {
         echo "context"
     else
         echo "unknown"
+    fi
+}
+
+extract_category_from_path() {
+    local path=$1
+    
+    # Extract category from path like .opencode/agent/core/openagent.md → core
+    # or .opencode/agent/subagents/code/tester.md → code (for subagents)
+    if [[ "$path" == *"/agent/subagents/"* ]]; then
+        # For subagents: .opencode/agent/subagents/code/tester.md → code
+        echo "$path" | sed -E 's|.*/agent/subagents/([^/]+)/.*|\1|'
+    elif [[ "$path" == *"/agent/"* ]]; then
+        # For agents: .opencode/agent/core/openagent.md → core
+        # Check if there's a category subdirectory
+        local category=$(echo "$path" | sed -E 's|.*/agent/([^/]+)/.*|\1|')
+        # If category is the filename, it's a flat structure (no category)
+        if [[ "$category" == *.md ]]; then
+            echo "standard"
+        else
+            echo "$category"
+        fi
+    else
+        echo "standard"
     fi
 }
 
@@ -401,9 +443,14 @@ scan_for_new_components() {
             continue
         fi
         
-        # Find all .md files (excluding node_modules, tests, docs)
+        # Find all .md files recursively (excluding node_modules, tests, docs, templates)
         while IFS= read -r file; do
             local rel_path="${file#$REPO_ROOT/}"
+            
+            # Skip symlinks (backward compatibility links)
+            if [ -L "$file" ]; then
+                continue
+            fi
             
             # Skip node_modules, tests, docs, templates
             if [[ "$rel_path" == *"/node_modules/"* ]] || \
@@ -424,10 +471,14 @@ scan_for_new_components() {
                 # Detect component type
                 local comp_type=$(detect_component_type "$rel_path")
                 
+                # Extract category from path
+                local comp_category=$(extract_category_from_path "$rel_path")
+                
                 if [ "$comp_type" != "unknown" ]; then
-                    NEW_COMPONENTS+=("${comp_type}|${id}|${name}|${description}|${rel_path}")
+                    NEW_COMPONENTS+=("${comp_type}|${id}|${name}|${description}|${rel_path}|${comp_category}")
                     print_warning "New ${comp_type}: ${name} (${id})"
                     echo "  Path: ${rel_path}"
+                    echo "  Category: ${comp_category}"
                     [ -n "$description" ] && echo "  Description: ${description}"
                     echo ""
                 fi
@@ -442,6 +493,7 @@ add_component_to_registry() {
     local name=$3
     local description=$4
     local path=$5
+    local comp_category=${6:-"standard"}
     
     # Default description if empty
     if [ -z "$description" ]; then
@@ -461,6 +513,7 @@ add_component_to_registry() {
        --arg type "$comp_type" \
        --arg path "$path" \
        --arg desc "$description" \
+       --arg cat "$comp_category" \
        ".components.${registry_key} += [{
          \"id\": \$id,
          \"name\": \$name,
@@ -469,12 +522,12 @@ add_component_to_registry() {
          \"description\": \$desc,
          \"tags\": [],
          \"dependencies\": [],
-         \"category\": \"standard\"
+         \"category\": \$cat
        }]" "$REGISTRY_FILE" > "$temp_file"
     
     if [ $? -eq 0 ]; then
         mv "$temp_file" "$REGISTRY_FILE"
-        print_success "Added ${comp_type}: ${name}"
+        print_success "Added ${comp_type}: ${name} (category: ${comp_category})"
     else
         print_error "Failed to add ${comp_type}: ${name}"
         rm -f "$temp_file"
@@ -602,8 +655,8 @@ main() {
             
             local added=0
             for entry in "${NEW_COMPONENTS[@]}"; do
-                IFS='|' read -r comp_type id name description path <<< "$entry"
-                if add_component_to_registry "$comp_type" "$id" "$name" "$description" "$path"; then
+                IFS='|' read -r comp_type id name description path comp_category <<< "$entry"
+                if add_component_to_registry "$comp_type" "$id" "$name" "$description" "$path" "$comp_category"; then
                     added=$((added + 1))
                 fi
             done
