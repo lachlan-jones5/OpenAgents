@@ -44,3 +44,7 @@ export type { SaveOptions, ResultMetadata, ResultSummary } from './result-saver.
 // Prompt management
 export { PromptManager } from './prompt-manager.js';
 export type { PromptMetadata, SwitchResult } from './prompt-manager.js';
+
+// Model-specific behaviors
+export { getModelBehavior, calculateModelTimeout, MODEL_BEHAVIORS } from './model-behaviors.js';
+export type { ModelBehavior } from './model-behaviors.js';

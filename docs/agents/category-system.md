@@ -25,7 +25,9 @@ The category-based agent system organizes agents into logical categories, making
 .opencode/agent/
 ├── core/                    # Core Agents (System-level)
 │   ├── openagent.md         # Universal coordinator
-│   ├── opencoder.md         # Development specialist
+│   └── opencoder.md         # Development specialist
+│
+├── meta/                    # Meta-level Agents
 │   └── system-builder.md    # System architect
 │
 ├── development/             # Development Specialists
@@ -113,14 +115,24 @@ task(
 
 ### Core (`core/`)
 
-**Purpose**: System-level agents maintained by the repository
+**Purpose**: Essential system-level agents for daily development work
 
 **Agents**:
 - `core/openagent` - Universal task coordinator
 - `core/opencoder` - Development specialist
-- `core/system-builder` - System architect
 
-**When to use**: Primary agents for general tasks
+**When to use**: Primary agents for general tasks and development
+
+---
+
+### Meta (`meta/`)
+
+**Purpose**: Meta-level agents for system generation and architecture design
+
+**Agents**:
+- `meta/system-builder` - System architect and generator
+
+**When to use**: Building custom AI systems and agent architectures
 
 ---
 
@@ -246,7 +258,7 @@ npm run eval:sdk -- --agent=core/opencoder
 The eval framework automatically resolves old agent names:
 - `openagent` → `core/openagent`
 - `opencoder` → `core/opencoder`
-- `system-builder` → `core/system-builder`
+- `system-builder` → `meta/system-builder`
 
 ### Deprecation Timeline
 

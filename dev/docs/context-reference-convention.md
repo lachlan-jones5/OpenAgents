@@ -268,7 +268,7 @@ grep -E '@[^~$]' file.md | grep -v '@.opencode/context/'
 
 ### Example 1: Agent File
 
-**File:** `.opencode/agent/openagent.md`
+**File:** `.opencode/agent/core/openagent.md`
 
 ```markdown
 # OpenAgent

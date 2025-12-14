@@ -60,7 +60,8 @@ opencode-agents/
 │   ├── agent/                    # Agent prompts (category-based)
 │   │   ├── core/
 │   │   │   ├── openagent.md          # Universal orchestrator
-│   │   │   ├── opencoder.md          # Development specialist
+│   │   │   └── opencoder.md          # Development specialist
+│   │   ├── meta/
 │   │   │   └── system-builder.md     # System architect
 │   │   ├── development/
 │   │   │   ├── frontend-specialist.md
@@ -114,7 +115,7 @@ opencode-agents/
 Main agent prompts organized by category. These are the "brains" of the system:
 - **core/openagent.md** - Universal orchestrator with plan-first workflow
 - **core/opencoder.md** - Development specialist for direct code execution
-- **core/system-builder.md** - System architecture generator
+- **meta/system-builder.md** - System architecture generator
 - **development/** - Development specialist agents (frontend, backend, devops)
 - **content/** - Content creation agents (copywriter, technical-writer)
 - **subagents/** - Specialized helpers for specific tasks

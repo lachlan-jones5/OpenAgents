@@ -1,0 +1,39 @@
+id: golden-01-smoke-test
+name: "Golden 01: Smoke Test - Basic Read Operation"
+description: |
+  Basic sanity check that the agent can read a file and respond.
+  
+  This is the simplest possible test - if this fails, something
+  is fundamentally broken with the agent or test infrastructure.
+  
+  Validates:
+  - Agent can receive and understand a prompt
+  - Agent can use the read tool
+  - Agent responds with file contents
+category: developer
+
+prompts:
+  - text: |
+      Read the file evals/test_tmp/README.md and tell me what it's about in one sentence.
+
+approvalStrategy:
+  type: auto-approve
+
+behavior:
+  mustUseTools:
+    - read
+  minToolCalls: 1
+  maxToolCalls: 3
+
+expectedViolations:
+  - rule: approval-gate
+    shouldViolate: false
+    severity: error
+
+timeout: 60000
+
+tags:
+  - golden
+  - smoke-test
+  - read-only
+  - safe

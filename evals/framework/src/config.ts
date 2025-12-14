@@ -256,7 +256,7 @@ export const resolveAgentPath = (agent: string, projectPath?: string): string =>
  * Maps old agent names to new category-based paths:
  * - "openagent" → "core/openagent"
  * - "opencoder" → "core/opencoder"
- * - "system-builder" → "core/system-builder"
+ * - "system-builder" → "meta/system-builder"
  * 
  * Already category-based paths are returned as-is:
  * - "core/openagent" → "core/openagent"
@@ -275,7 +275,7 @@ export const normalizeAgentId = (agent: string): string => {
   const coreAgents: Record<string, string> = {
     'openagent': 'core/openagent',
     'opencoder': 'core/opencoder',
-    'system-builder': 'core/system-builder',
+    'system-builder': 'meta/system-builder',
   };
   
   return coreAgents[agent] || agent;

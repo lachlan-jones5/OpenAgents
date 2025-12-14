@@ -519,7 +519,8 @@ Read [Agent System Blueprint](docs/features/agent-system-blueprint.md) to learn:
 ├── agent/              # AI agents (category-based)
 │   ├── core/                    # Core system agents
 │   │   ├── openagent.md        # Universal orchestrator
-│   │   ├── opencoder.md        # Development specialist
+│   │   └── opencoder.md        # Development specialist
+│   ├── meta/                    # Meta-level agents
 │   │   └── system-builder.md   # System architect
 │   ├── development/            # Development specialists
 │   │   ├── frontend-specialist.md

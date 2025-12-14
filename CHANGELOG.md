@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Category-Based Agent Organization**: Agents now organized by domain in subdirectories
-  - `core/` - Core system agents (openagent, opencoder, system-builder)
+  - `core/` - Core system agents (openagent, opencoder)
+  - `meta/` - Meta-level agents (system-builder)
   - `development/` - Development specialists (frontend-specialist, backend-specialist, devops-specialist, codebase-agent)
   - `content/` - Content creation agents (copywriter, technical-writer)
   - `data/` - Data and analysis agents (data-analyst)

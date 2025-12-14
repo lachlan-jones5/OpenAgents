@@ -22,12 +22,12 @@ const testCases = [
   // Old format (flat structure)
   { agent: 'openagent', expected: 'core/openagent', category: undefined },
   { agent: 'opencoder', expected: 'core/opencoder', category: undefined },
-  { agent: 'system-builder', expected: 'core/system-builder', category: undefined },
+  { agent: 'system-builder', expected: 'meta/system-builder', category: undefined },
   
   // New format (category-based)
   { agent: 'core/openagent', expected: 'core/openagent', category: 'core' },
   { agent: 'core/opencoder', expected: 'core/opencoder', category: 'core' },
-  { agent: 'core/system-builder', expected: 'core/system-builder', category: 'core' },
+  { agent: 'meta/system-builder', expected: 'meta/system-builder', category: 'meta' },
   { agent: 'development/frontend-specialist', expected: 'development/frontend-specialist', category: 'development' },
   { agent: 'development/backend-specialist', expected: 'development/backend-specialist', category: 'development' },
   { agent: 'content/copywriter', expected: 'content/copywriter', category: 'content' },

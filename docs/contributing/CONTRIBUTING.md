@@ -17,7 +17,8 @@ opencode-agents/
 │   ├── agent/              # Agents (category-based)
 │   │   ├── core/
 │   │   │   ├── openagent.md        # Universal orchestrator
-│   │   │   ├── opencoder.md        # Development specialist
+│   │   │   └── opencoder.md        # Development specialist
+│   │   ├── meta/
 │   │   │   └── system-builder.md   # System architect
 │   │   ├── development/
 │   │   │   ├── frontend-specialist.md
@@ -58,7 +59,8 @@ opencode-agents/
 
 ### Key Directories
 
-- **`.opencode/agent/core/`** - Core system agents (openagent.md, opencoder.md, system-builder.md)
+- **`.opencode/agent/core/`** - Core system agents (openagent.md, opencoder.md)
+- **`.opencode/agent/meta/`** - Meta-level agents (system-builder.md)
 - **`.opencode/agent/development/`** - Development specialist agents
 - **`.opencode/agent/content/`** - Content creation agents
 - **`.opencode/agent/subagents/`** - Specialized subagents

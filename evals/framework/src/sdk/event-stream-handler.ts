@@ -43,6 +43,8 @@ export class EventStreamHandler {
   private permissionHandler: PermissionHandler | null = null;
   private isListening: boolean = false;
   private abortController: AbortController | null = null;
+  private handlerIds: Map<EventHandler, string> = new Map();
+  private nextHandlerId = 0;
 
   constructor(baseUrl: string) {
     this.client = createOpencodeClient({ baseUrl });
@@ -50,27 +52,43 @@ export class EventStreamHandler {
 
   /**
    * Register an event handler for a specific event type
+   * Returns handler ID for removal
    */
-  on(eventType: EventType, handler: EventHandler): void {
+  on(eventType: EventType, handler: EventHandler): string {
+    const id = `handler_${this.nextHandlerId++}`;
+    this.handlerIds.set(handler, id);
+    
     if (!this.eventHandlers.has(eventType)) {
       this.eventHandlers.set(eventType, []);
     }
     this.eventHandlers.get(eventType)!.push(handler);
+    
+    return id;
   }
 
   /**
    * Register a handler for all events
+   * Returns handler ID for removal
    */
-  onAny(handler: EventHandler): void {
-    this.on('session.created', handler);
-    this.on('session.updated', handler);
-    this.on('message.created', handler);
-    this.on('message.updated', handler);
-    this.on('part.created', handler);
-    this.on('part.updated', handler);
-    this.on('permission.request', handler);
-    this.on('tool.call', handler);
-    this.on('tool.result', handler);
+  onAny(handler: EventHandler): string {
+    const id = `handler_${this.nextHandlerId++}`;
+    this.handlerIds.set(handler, id);
+    
+    const eventTypes: EventType[] = [
+      'session.created', 'session.updated',
+      'message.created', 'message.updated',
+      'part.created', 'part.updated',
+      'permission.request', 'tool.call', 'tool.result'
+    ];
+    
+    for (const type of eventTypes) {
+      if (!this.eventHandlers.has(type)) {
+        this.eventHandlers.set(type, []);
+      }
+      this.eventHandlers.get(type)!.push(handler);
+    }
+    
+    return id;
   }
 
   /**
@@ -112,12 +130,9 @@ export class EventStreamHandler {
           try {
             const approved = await this.permissionHandler(serverEvent as PermissionRequestEvent);
             
-            // Respond to the permission request
+            // Respond to the permission request with retry logic
             const { sessionId, permissionId } = event.properties as any;
-            await this.client.postSessionIdPermissionsPermissionId({
-              path: { id: sessionId, permissionID: permissionId },
-              body: { response: approved ? 'once' : 'reject' },
-            });
+            await this.respondToPermissionWithRetry(sessionId, permissionId, approved);
           } catch (error) {
             console.error('Error handling permission request:', error);
           }
@@ -174,5 +189,72 @@ export class EventStreamHandler {
    */
   removeHandlers(eventType: EventType): void {
     this.eventHandlers.delete(eventType);
+  }
+
+  /**
+   * Remove specific handler by reference
+   */
+  off(handler: EventHandler): void {
+    for (const [type, handlers] of this.eventHandlers) {
+      const index = handlers.indexOf(handler);
+      if (index !== -1) {
+        handlers.splice(index, 1);
+      }
+    }
+    this.handlerIds.delete(handler);
+  }
+
+  /**
+   * Remove handler from specific event type
+   */
+  offType(eventType: EventType, handler: EventHandler): void {
+    const handlers = this.eventHandlers.get(eventType);
+    if (handlers) {
+      const index = handlers.indexOf(handler);
+      if (index !== -1) {
+        handlers.splice(index, 1);
+      }
+    }
+  }
+
+  /**
+   * Get count of registered handlers (for debugging)
+   */
+  getHandlerCount(): number {
+    let count = 0;
+    for (const handlers of this.eventHandlers.values()) {
+      count += handlers.length;
+    }
+    return count;
+  }
+
+  /**
+   * Respond to permission request with retry logic
+   * Handles transient failures when responding to permissions
+   */
+  private async respondToPermissionWithRetry(
+    sessionId: string,
+    permissionId: string,
+    approved: boolean,
+    maxRetries: number = 3,
+    retryDelay: number = 500
+  ): Promise<void> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await this.client.postSessionIdPermissionsPermissionId({
+          path: { id: sessionId, permissionID: permissionId },
+          body: { response: approved ? 'once' : 'reject' },
+        });
+        return; // Success
+      } catch (error) {
+        if (attempt < maxRetries) {
+          console.log(`Permission response failed, retrying (${attempt}/${maxRetries})...`);
+          await new Promise(r => setTimeout(r, retryDelay));
+        } else {
+          console.error('Permission response failed after retries:', error);
+          throw error;
+        }
+      }
+    }
   }
 }

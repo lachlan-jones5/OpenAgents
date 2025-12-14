@@ -10,19 +10,24 @@ You are an AI agent that helps create well-formatted git commits specifically fo
 
 When the user runs this command, execute the following workflow:
 
-### 1. **Pre-Commit Validation**
-Run these checks in parallel:
+### 1. **Pre-Commit Validation (Optional)**
+
+**Ask user first:**
+```
+Would you like to run smoke tests before committing? (y/n)
+- y: Run validation tests
+- n: Skip directly to commit
+```
+
+**If user chooses to run tests:**
 ```bash
-npm run test:openagent -- --smoke
-npm run test:opencoder -- --smoke
-git status --porcelain
-git diff --cached
+cd evals/framework && npm run eval:sdk -- --agent=core/openagent --pattern="**/smoke-test.yaml"
+cd evals/framework && npm run eval:sdk -- --agent=core/opencoder --pattern="**/smoke-test.yaml"
 ```
 
 **Validation Rules:**
-- ✅ Smoke tests must pass for both agents
-- ✅ Check for uncommitted changes
 - ⚠️ If tests fail, ask user if they want to proceed or fix issues first
+- ✅ Tests are optional - user can skip and commit directly
 
 ### 2. **Analyze Changes**
 - Run `git status` to see all untracked files
@@ -33,7 +38,16 @@ git diff --cached
 ### 3. **Stage Files Intelligently**
 **Auto-stage based on change type:**
 - If modifying evals framework → stage `evals/framework/`
-- If modifying agent configs → stage `.opencode/agent/`
+- If modifying core agents → stage `.opencode/agent/core/`
+- If modifying development agents → stage `.opencode/agent/development/`
+- If modifying content agents → stage `.opencode/agent/content/`
+- If modifying data agents → stage `.opencode/agent/data/`
+- If modifying meta agents → stage `.opencode/agent/meta/`
+- If modifying learning agents → stage `.opencode/agent/learning/`
+- If modifying product agents → stage `.opencode/agent/product/`
+- If modifying subagents → stage `.opencode/agent/subagents/`
+- If modifying commands → stage `.opencode/command/`
+- If modifying context → stage `.opencode/context/`
 - If modifying scripts → stage `scripts/`
 - If modifying docs → stage `docs/`
 - If modifying CI/CD → stage `.github/workflows/`
@@ -66,27 +80,38 @@ git diff --cached
 
 **Scopes for this repo:**
 - `evals` - Evaluation framework changes
-- `agents` - Agent configuration changes (core agents: openagent, opencoder, system-builder)
-- `agents/dev` - Development category agents (frontend-specialist, backend-specialist, etc.)
+- `agents/core` - Core agents (openagent, opencoder)
+- `agents/meta` - Meta agents (system-builder, repo-manager)
+- `agents/development` - Development category agents (frontend-specialist, backend-specialist, devops-specialist, codebase-agent)
 - `agents/content` - Content category agents (copywriter, technical-writer)
 - `agents/data` - Data category agents (data-analyst)
-- `subagents` - Subagent changes (task-manager, coder, tester, etc.)
+- `agents/learning` - Learning category agents
+- `agents/product` - Product category agents
+- `subagents/core` - Core subagents (task-manager, documentation, context-retriever)
+- `subagents/code` - Code subagents (coder-agent, tester, reviewer, build-agent, codebase-pattern-analyst)
+- `subagents/system-builder` - System builder subagents (domain-analyzer, agent-generator, context-organizer, workflow-designer, command-creator)
+- `subagents/utils` - Utility subagents (image-specialist)
 - `commands` - Slash command changes
 - `context` - Context file changes
 - `scripts` - Build/test script changes
 - `ci` - GitHub Actions workflow changes
 - `docs` - Documentation changes
+- `registry` - Registry.json changes
 
 **Examples:**
 ```
 feat(evals): add parallel test execution support
-fix(agents): correct delegation logic in openagent
-fix(agents/dev): update frontend-specialist validation rules
+fix(agents/core): correct delegation logic in openagent
+fix(agents/development): update frontend-specialist validation rules
 feat(agents/content): add new copywriter capabilities
+feat(agents/meta): enhance system-builder with new templates
 refactor(evals): split test-runner into modular components
 test(evals): add smoke tests for openagent
+feat(subagents/code): add build validation to build-agent
+feat(subagents/system-builder): improve domain-analyzer pattern detection
 docs(readme): update installation instructions
 chore(deps): upgrade evaluation framework dependencies
+feat(registry): add new agent categories
 ci: add automatic version bumping workflow
 ```
 
@@ -177,7 +202,7 @@ Failures:
 
 Options:
 1. Fix issues and retry
-2. Run full test suite (npm run test:<agent>)
+2. Run full test suite (cd evals/framework && npm run eval:sdk -- --agent=<category>/<agent>)
 3. Proceed anyway (not recommended)
 4. Cancel commit
 
@@ -209,15 +234,16 @@ Run: git status
 
 ## Agent Behavior Notes
 
-- **Never commit without validation** - Always run smoke tests first
-- **Smart staging** - Only stage relevant files based on change scope
+- **Optional validation** - Ask user if they want to run smoke tests (not mandatory)
+- **Smart staging** - Only stage relevant files based on change scope and category structure
 - **Conventional commits** - Strictly follow conventional commit format (NO EMOJIS)
-- **Scope awareness** - Use appropriate scope for this repository
+- **Scope awareness** - Use appropriate scope for this repository (include category paths)
 - **Version awareness** - Inform user about automatic version bumping
 - **CI/CD awareness** - Remind user that push triggers automated workflows
 - **Security** - Never commit sensitive information (API keys, tokens, .env files)
 - **Atomic commits** - Each commit should have a single, clear purpose
 - **Push guidance** - Always ask before pushing to remote
+- **Category-aware** - Recognize new agent organization (core, development, content, data, meta, learning, product)
 
 ## Quick Reference
 
@@ -225,9 +251,8 @@ Run: git status
 
 **Feature Addition:**
 ```bash
-# 1. Run smoke tests
-npm run test:openagent -- --smoke
-npm run test:opencoder -- --smoke
+# 1. Optional: Run smoke tests
+cd evals/framework && npm run eval:sdk -- --agent=core/openagent --pattern="**/smoke-test.yaml"
 
 # 2. Stage and commit
 git add <files>
@@ -240,7 +265,7 @@ git push origin main
 **Bug Fix:**
 ```bash
 git add <files>
-git commit -m "fix(agents): correct delegation threshold logic"
+git commit -m "fix(agents/core): correct delegation threshold logic"
 git push origin main
 ```
 
@@ -261,11 +286,12 @@ git push origin main
 ## Success Criteria
 
 A successful commit should:
-- ✅ Pass smoke tests for both agents
-- ✅ Follow conventional commit format
-- ✅ Have appropriate scope
+- ✅ Follow conventional commit format (NO EMOJIS)
+- ✅ Have appropriate scope with category path (e.g., agents/core, subagents/code)
 - ✅ Be atomic (single purpose)
 - ✅ Have clear, concise message
 - ✅ Not include sensitive information
 - ✅ Not include generated files (node_modules, build artifacts)
+- ✅ Only stage relevant files based on category structure
 - ✅ Trigger appropriate CI/CD workflows when pushed
+- ✅ Optionally pass smoke tests if validation was requested

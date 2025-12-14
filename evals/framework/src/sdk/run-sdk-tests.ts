@@ -24,6 +24,10 @@
  *   --no-evaluators      Skip running evaluators (faster)
  *   --core               Run core test suite only (7 tests, ~5-8 min)
  *   --agent=AGENT        Run tests for specific agent (openagent, opencoder)
+ *   --subagent=NAME      Test a subagent (coder-agent, tester, reviewer, etc.)
+ *                        Default: Standalone mode (forces mode: primary)
+ *   --delegate           Test subagent via parent delegation (requires --subagent)
+ *                        Uses appropriate parent agent (opencoder, openagent, etc.)
  *   --model=PROVIDER/MODEL  Override default model (default: opencode/grok-code-fast)
  *   --pattern=GLOB       Run specific test files (default: star-star/star.yaml)
  *   --timeout=MS         Test timeout in milliseconds (default: 60000)
@@ -56,6 +60,8 @@ interface CliArgs {
   timeout?: number;
   model?: string;
   promptVariant?: string;
+  subagent?: string;      // Test a subagent
+  delegate?: boolean;     // Test subagent via delegation (requires --subagent)
 }
 
 function parseArgs(): CliArgs {
@@ -72,6 +78,8 @@ function parseArgs(): CliArgs {
     timeout: parseInt(args.find(a => a.startsWith('--timeout='))?.split('=')[1] || '60000'),
     model: args.find(a => a.startsWith('--model='))?.split('=')[1],
     promptVariant: args.find(a => a.startsWith('--prompt-variant='))?.split('=')[1],
+    subagent: args.find(a => a.startsWith('--subagent='))?.split('=')[1],
+    delegate: args.includes('--delegate'),
   };
 }
 
@@ -249,18 +257,21 @@ async function displayConversation(sessionId: string): Promise<void> {
           .sort((a, b) => a.created - b.created);
         
         for (const { content: part } of partFiles) {
-          if (part.type === 'text' && part.text) {
+          if ((part.type === 'text' || part.type === 'reasoning') && part.text) {
             console.log(part.text);
             console.log();
           } else if (part.type === 'tool') {
+            const toolInput = part.state?.input || part.input || {};
             console.log(`🔧 TOOL CALL: ${part.tool}`);
-            console.log(`   Input: ${JSON.stringify(part.input || {})}`);
+            console.log(`   Input: ${JSON.stringify(toolInput, null, 2)}`);
             console.log();
-          } else if (part.type === 'tool_result' && part.result) {
-            const result = part.result.substring(0, 300);
-            console.log(`📊 TOOL RESULT:`);
-            console.log(result + (part.result.length > 300 ? '...' : ''));
-            console.log();
+          } else if (part.type === 'tool_result') {
+            const result = (part.state?.result || part.result || '').toString().substring(0, 300);
+            if (result) {
+              console.log(`📊 TOOL RESULT:`);
+              console.log(result + (result.length > 300 ? '...' : ''));
+              console.log();
+            }
           }
         }
       }
@@ -280,6 +291,11 @@ async function main() {
     console.log('ℹ️  --verbose flag automatically enabled --debug (required for session data)\n');
   }
   
+  // Set DEBUG_VERBOSE early if debug mode is enabled
+  if (args.debug) {
+    process.env.DEBUG_VERBOSE = 'true';
+  }
+  
   console.log('🚀 OpenCode SDK Test Runner\n');
   
   // Determine project root (for prompt management)
@@ -287,7 +303,85 @@ async function main() {
   
   // Determine which agent(s) to test
   const agentsDir = join(__dirname, '../../..', 'agents');
-  const agentToTest = args.agent;
+  
+  // Handle subagent testing
+  let agentToTest = args.agent;
+  let isSubagentTest = false;
+  let isDelegationTest = false;
+  let parentAgent: string | undefined;
+  
+  if (args.subagent) {
+    // Validate --delegate flag usage
+    if (args.delegate && args.agent) {
+      console.error('❌ Error: Cannot use --delegate with --agent');
+      console.error('   Use either:');
+      console.error('     --subagent=NAME              (standalone mode)');
+      console.error('     --subagent=NAME --delegate   (delegation mode)');
+      console.error('     --agent=NAME                 (main agent)\n');
+      process.exit(1);
+    }
+    
+    isSubagentTest = true;
+    isDelegationTest = args.delegate || false;
+    
+    // Map subagents to their parent agents for delegation testing
+    const subagentParentMap: Record<string, string> = {
+      // Code subagents → opencoder
+      'coder-agent': 'opencoder',
+      'tester': 'opencoder',
+      'reviewer': 'opencoder',
+      'build-agent': 'opencoder',
+      'codebase-pattern-analyst': 'opencoder',
+      
+      // Core subagents → openagent
+      'task-manager': 'openagent',
+      'documentation': 'openagent',
+      'context-retriever': 'openagent',
+      
+      // System-builder subagents → system-builder
+      'agent-generator': 'system-builder',
+      'command-creator': 'system-builder',
+      'context-organizer': 'system-builder',
+      'domain-analyzer': 'system-builder',
+      'workflow-designer': 'system-builder',
+      
+      // Utils → openagent
+      'image-specialist': 'openagent',
+    };
+    
+    if (isDelegationTest) {
+      // Delegation mode: use parent agent
+      parentAgent = subagentParentMap[args.subagent];
+      
+      if (!parentAgent) {
+        console.error(`❌ Error: Unknown subagent '${args.subagent}'`);
+        console.error('\n📋 Available subagents:');
+        console.error('\n  Code subagents (parent: opencoder):');
+        console.error('    - coder-agent, tester, reviewer, build-agent, codebase-pattern-analyst');
+        console.error('\n  Core subagents (parent: openagent):');
+        console.error('    - task-manager, documentation, context-retriever');
+        console.error('\n  System-builder subagents (parent: system-builder):');
+        console.error('    - agent-generator, command-creator, context-organizer');
+        console.error('    - domain-analyzer, workflow-designer');
+        console.error('\n  Utils subagents (parent: openagent):');
+        console.error('    - image-specialist\n');
+        process.exit(1);
+      }
+      
+      agentToTest = parentAgent;
+      console.log(`🔗 Delegation Test Mode`);
+      console.log(`   Subagent: ${args.subagent}`);
+      console.log(`   Parent: ${parentAgent}`);
+      console.log(`   Tests will verify delegation from ${parentAgent} → ${args.subagent}\n`);
+    } else {
+      // Standalone mode: test subagent directly (will force mode: primary)
+      agentToTest = args.subagent;
+      console.log(`⚡ Standalone Test Mode`);
+      console.log(`   Subagent: ${args.subagent}`);
+      console.log(`   Mode: Forced to 'primary' for direct testing`);
+      console.log(`   Note: In production, this subagent runs as 'mode: subagent'\n`);
+    }
+  }
   
   // Initialize prompt manager for variant switching
   const promptManager = new PromptManager(projectRoot);
@@ -295,17 +389,66 @@ async function main() {
   let modelFamily: string | undefined;
   let switchedPrompt = false;
   
+  /**
+   * Resolve agent path to support both old and new directory structures
+   * Old: agents/openagent/tests
+   * New: agents/core/openagent/tests
+   * Subagents: agents/subagents/code/coder-agent/tests
+   */
+  const resolveAgentTestDir = (agent: string): string => {
+    // Map old agent names to new category-based paths
+    const agentCategoryMap: Record<string, string> = {
+      'openagent': 'core/openagent',
+      'opencoder': 'core/opencoder',
+      'system-builder': 'meta/system-builder',
+    };
+    
+    // Map subagent names to their full paths
+    const subagentPathMap: Record<string, string> = {
+      // Code subagents
+      'coder-agent': 'subagents/code/coder-agent',
+      'tester': 'subagents/code/tester',
+      'reviewer': 'subagents/code/reviewer',
+      'build-agent': 'subagents/code/build-agent',
+      'codebase-pattern-analyst': 'subagents/code/codebase-pattern-analyst',
+      // Core subagents
+      'task-manager': 'subagents/core/task-manager',
+      'documentation': 'subagents/core/documentation',
+      'context-retriever': 'subagents/core/context-retriever',
+      // System-builder subagents
+      'agent-generator': 'subagents/system-builder/agent-generator',
+      'command-creator': 'subagents/system-builder/command-creator',
+      'context-organizer': 'subagents/system-builder/context-organizer',
+      'domain-analyzer': 'subagents/system-builder/domain-analyzer',
+      'workflow-designer': 'subagents/system-builder/workflow-designer',
+      // Utils subagents
+      'image-specialist': 'subagents/utils/image-specialist',
+    };
+    
+    // Check if it's a subagent first
+    if (subagentPathMap[agent]) {
+      return join(agentsDir, subagentPathMap[agent], 'tests');
+    }
+    
+    // If agent already contains a slash, it's category-based
+    const agentPath = agent.includes('/') ? agent : (agentCategoryMap[agent] || agent);
+    return join(agentsDir, agentPath, 'tests');
+  };
+  
   let testDirs: string[] = [];
   
+  // Shared tests directory (available to all agents)
+  const sharedTestsDir = join(agentsDir, 'shared', 'tests');
+  
   if (agentToTest) {
-    // Test specific agent
-    const agentTestDir = join(agentsDir, agentToTest, 'tests');
-    testDirs = [agentTestDir];
+    // Test specific agent + shared tests
+    const agentTestDir = resolveAgentTestDir(agentToTest);
+    testDirs = [agentTestDir, sharedTestsDir];
     console.log(`Testing agent: ${agentToTest}\n`);
   } else {
-    // Test all agents
-    const availableAgents = ['openagent', 'opencoder'];
-    testDirs = availableAgents.map(a => join(agentsDir, a, 'tests'));
+    // Test all core agents + shared tests (using new category-based paths)
+    const availableAgents = ['core/openagent', 'core/opencoder'];
+    testDirs = [...availableAgents.map(a => resolveAgentTestDir(a)), sharedTestsDir];
     console.log(`Testing all agents: ${availableAgents.join(', ')}\n`);
   }
   
@@ -473,9 +616,10 @@ async function main() {
   cleanupTestTmp(testTmpDir);
   
   try {
-    // Start runner
+    // Start runner with the agent to test
     console.log('Starting test runner...');
-    await runner.start();
+    const forceStandalone = isSubagentTest && !isDelegationTest;
+    await runner.start(agentToTest || 'openagent', forceStandalone);
     console.log('✅ Test runner started\n');
     
     // Run tests
@@ -507,7 +651,20 @@ async function main() {
       const resultSaver = new ResultSaver(resultsDir);
       
       // Determine agent from test cases (all tests should be for same agent)
-      const agent = testCases[0].agent || agentToTest || 'unknown';
+      // Normalize agent to category-based format for consistency
+      let agent = testCases[0].agent || agentToTest || 'unknown';
+      
+      // Normalize to category-based format if needed
+      const agentCategoryMap: Record<string, string> = {
+        'openagent': 'core/openagent',
+        'opencoder': 'core/opencoder',
+        'system-builder': 'meta/system-builder',
+      };
+      
+      if (!agent.includes('/') && agentCategoryMap[agent]) {
+        agent = agentCategoryMap[agent];
+      }
+      
       const model = modelToUse || 'opencode/grok-code-fast';
       
       try {
@@ -544,6 +701,7 @@ async function main() {
         console.log(`Session ID: ${result.sessionId || 'N/A'}`);
         
         if (result.sessionId) {
+          console.log(`📥 Fetching full transcript from session storage...\n`);
           await displayConversation(result.sessionId);
         } else {
           console.log('⚠️  No session ID available for this test\n');

@@ -66,6 +66,70 @@ Path: `.opencode/context/learning/{file}`
 
 ---
 
+## OpenAgents Repository Context
+
+Path: `.opencode/context/openagents-repo/{file}`
+
+**Purpose**: Context for working on the OpenAgents repository itself (not user projects)
+
+### Quick Start (Load First)
+```
+quick-start     → openagents-repo/quick-start.md     [critical] orientation, common commands
+```
+
+### Core Concepts (Load Before Working)
+```
+agents          → openagents-repo/core-concepts/agents.md     [critical] how agents work
+evals           → openagents-repo/core-concepts/evals.md      [critical] how testing works
+registry        → openagents-repo/core-concepts/registry.md   [critical] how registry works
+categories      → openagents-repo/core-concepts/categories.md [high]     how organization works
+```
+
+### Guides (Task-Specific Workflows)
+```
+adding-agent    → openagents-repo/guides/adding-agent.md      [high] step-by-step agent creation
+testing-agent   → openagents-repo/guides/testing-agent.md     [high] testing workflow
+updating-registry → openagents-repo/guides/updating-registry.md [medium] registry workflow
+creating-release → openagents-repo/guides/creating-release.md [medium] release workflow
+debugging       → openagents-repo/guides/debugging.md         [medium] troubleshooting
+```
+
+### Lookup (Quick Reference)
+```
+file-locations  → openagents-repo/lookup/file-locations.md    [medium] where everything is
+commands        → openagents-repo/lookup/commands.md          [medium] command reference
+```
+
+### Templates (For Subagent Coordination)
+```
+context-bundle  → openagents-repo/templates/context-bundle-template.md [high] template for delegating to subagents
+```
+
+### Examples (Reference Implementations)
+```
+bundle-example  → openagents-repo/examples/context-bundle-example.md [medium] example context bundle
+```
+
+**Loading Strategy**:
+- **First time**: Load `quick-start.md`
+- **Add agent**: Load `quick-start.md` + `core-concepts/agents.md` + `guides/adding-agent.md`
+- **Test agent**: Load `quick-start.md` + `core-concepts/evals.md` + `guides/testing-agent.md`
+- **Fix registry**: Load `quick-start.md` + `core-concepts/registry.md` + `guides/updating-registry.md`
+- **Find files**: Load `quick-start.md` + `lookup/file-locations.md`
+
+**Use When**:
+- Adding new agents, commands, or tools to OpenAgents
+- Modifying eval framework or registry system
+- Working on OpenAgents infrastructure
+- Fixing bugs in the framework
+- Writing OpenAgents documentation
+
+**Don't Use When**:
+- Working on user projects (use project-specific context)
+- General coding tasks (use core/standards/)
+
+---
+
 ## Loading Instructions
 
 **For common tasks, use quick map above. For keyword matching, scan triggers.**

@@ -62,7 +62,7 @@
         "id": "system-builder",
         "name": "System Builder",
         "type": "agent",
-        "path": ".opencode/agent/core/system-builder.md",
+        "path": ".opencode/agent/meta/system-builder.md",
         "description": "Generates complete context-aware AI systems from user requirements",
         "tags": [
           "system-generation",
@@ -148,6 +148,26 @@
         "tags": [],
         "dependencies": [],
         "category": "data"
+      },
+      {
+        "id": "eval-runner",
+        "name": "Eval Runner",
+        "type": "agent",
+        "path": ".opencode/agent/eval-runner.md",
+        "description": "Test harness for evaluation framework - DO NOT USE DIRECTLY",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "repo-manager",
+        "name": "Repo Manager",
+        "type": "agent",
+        "path": ".opencode/agent/meta/repo-manager.md",
+        "description": "Meta agent for managing OpenAgents repository development with context-aware planning, task breakdown, and automatic documentation",
+        "tags": [],
+        "dependencies": [],
+        "category": "meta"
       }
     ],
     "subagents": [
@@ -334,6 +354,16 @@
         ],
         "dependencies": [],
         "category": "meta"
+      },
+      {
+        "id": "context-retriever",
+        "name": "Context Retriever",
+        "type": "subagent",
+        "path": ".opencode/agent/subagents/core/context-retriever.md",
+        "description": "Generic context search and retrieval specialist for finding relevant context files, standards, and guides in any repository",
+        "tags": [],
+        "dependencies": [],
+        "category": "core"
       }
     ],
     "commands": [
@@ -879,6 +909,136 @@
         "tags": [],
         "dependencies": [],
         "category": "standard"
+      },
+      {
+        "id": "quick-start",
+        "name": "Quick Start",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/quick-start.md",
+        "description": "OpenAgents Repository - Quick Start",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "commands",
+        "name": "Commands",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/lookup/commands.md",
+        "description": "Lookup: Command Reference",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "file-locations",
+        "name": "File Locations",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/lookup/file-locations.md",
+        "description": "Lookup: File Locations",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "adding-agent",
+        "name": "Adding Agent",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/guides/adding-agent.md",
+        "description": "Brief description of what this agent does",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "creating-release",
+        "name": "Creating Release",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/guides/creating-release.md",
+        "description": "Guide: Creating a Release",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "testing-agent",
+        "name": "Testing Agent",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/guides/testing-agent.md",
+        "description": "Verify agent requests approval before execution",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "debugging",
+        "name": "Debugging",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/guides/debugging.md",
+        "description": "Guide: Debugging Common Issues",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "updating-registry",
+        "name": "Updating Registry",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/guides/updating-registry.md",
+        "description": "Guide: Updating Registry",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "context-bundle-example",
+        "name": "Context Bundle Example",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/examples/context-bundle-example.md",
+        "description": "Context Bundle Example: Create Data Analyst Agent",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "evals",
+        "name": "Evals",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/core-concepts/evals.md",
+        "description": "Verify agent responds correctly",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "agents",
+        "name": "Agents",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/core-concepts/agents.md",
+        "description": "Brief description of what this agent does",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "categories",
+        "name": "Categories",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/core-concepts/categories.md",
+        "description": "Core Concept: Category System",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
+      },
+      {
+        "id": "registry",
+        "name": "Registry",
+        "type": "context",
+        "path": ".opencode/context/openagents-repo/core-concepts/registry.md",
+        "description": "Core Concept: Registry System",
+        "tags": [],
+        "dependencies": [],
+        "category": "standard"
       }
     ],
     "config": [
@@ -1083,7 +1243,7 @@
     }
   },
   "metadata": {
-    "lastUpdated": "2025-12-10",
+    "lastUpdated": "2025-12-14",
     "schemaVersion": "1.0.0"
   }
 }

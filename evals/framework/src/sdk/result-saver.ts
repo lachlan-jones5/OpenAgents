@@ -32,6 +32,8 @@ export interface ViolationDetail {
   readonly type: string;
   readonly severity: ViolationSeverity;
   readonly message: string;
+  /** Whether this violation was expected by the test case */
+  readonly expected?: boolean;
 }
 
 /**
@@ -275,6 +277,39 @@ export class ResultSaver {
    */
   private toCompactResult(result: TestResult): CompactTestResult {
     const violations = result.evaluation?.allViolations || [];
+    const expectedViolations = result.testCase.expectedViolations || [];
+    
+    // Build a set of expected violation patterns for matching
+    const expectedPatterns = new Map<string, boolean>();
+    for (const ev of expectedViolations) {
+      if (ev.shouldViolate) {
+        // Map rule names to violation type patterns
+        const rulePatterns: Record<string, string[]> = {
+          'approval-gate': ['approval', 'missing-approval'],
+          'context-loading': ['context', 'no-context-loaded', 'missing-context', 'wrong-context-file'],
+          'delegation': ['delegation', 'missing-delegation'],
+          'tool-usage': ['tool', 'suboptimal-tool'],
+          'stop-on-failure': ['stop', 'failure'],
+          'confirm-cleanup': ['cleanup', 'confirm'],
+          'cleanup-confirmation': ['cleanup', 'confirm'],
+          'execution-balance': ['execution-balance', 'insufficient-read', 'execution-before-read', 'read-exec-ratio'],
+          'report-first': ['report-first', 'report'],
+        };
+        const patterns = rulePatterns[ev.rule] || [ev.rule];
+        patterns.forEach(p => expectedPatterns.set(p.toLowerCase(), true));
+      }
+    }
+    
+    // Check if a violation was expected
+    const isExpectedViolation = (type: string): boolean => {
+      const typeLower = type.toLowerCase();
+      for (const [pattern] of expectedPatterns) {
+        if (typeLower.includes(pattern)) {
+          return true;
+        }
+      }
+      return false;
+    };
     
     return {
       id: result.testCase.id,
@@ -292,6 +327,7 @@ export class ResultSaver {
               type: v.type,
               severity: v.severity as ViolationSeverity,
               message: v.message,
+              expected: isExpectedViolation(v.type) || undefined,
             }))
           : undefined,
       },
@@ -327,6 +363,8 @@ export class ResultSaver {
   /**
    * Generate filename for result file
    * Format: DD-HHMMSS-{agent}[-{variant}].json
+   * 
+   * Note: Agent names with slashes (e.g., 'core/openagent') are converted to dashes
    */
   private generateFilename(date: Date, agent: string, variant?: string): string {
     const day = String(date.getDate()).padStart(2, '0');
@@ -335,16 +373,25 @@ export class ResultSaver {
     const seconds = String(date.getSeconds()).padStart(2, '0');
     const time = `${hours}${minutes}${seconds}`;
     
+    // Replace slashes in agent name with dashes for valid filename
+    const safeAgentName = agent.replace(/\//g, '-');
+    
     const variantSuffix = variant ? `-${variant}` : '';
-    return `${day}-${time}-${agent}${variantSuffix}.json`;
+    return `${day}-${time}-${safeAgentName}${variantSuffix}.json`;
   }
   
   /**
    * Ensure directory exists (create if needed)
+   * 
+   * @throws {Error} If directory creation fails
    */
   private ensureDirectoryExists(dir: string): void {
     if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
+      try {
+        mkdirSync(dir, { recursive: true });
+      } catch (error) {
+        throw new Error(`Failed to create directory ${dir}: ${(error as Error).message}`);
+      }
     }
   }
   

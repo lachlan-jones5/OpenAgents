@@ -1,11 +1,12 @@
-# OpenAgents - GitHub Project Management
-# Quick commands for managing your GitHub Project board from the terminal
+# OpenAgents - GitHub Project Management & Development
+# Quick commands for managing your GitHub Project board and running tests
 
 REPO := darrenhinde/OpenAgents
 PROJECT_NUMBER := 2
 OWNER := darrenhinde
 
 .PHONY: help idea ideas board labels project-info issue-view issue-comment issue-close bug feature
+.PHONY: test-evals test-golden test-smoke test-verbose build-evals validate-evals
 
 help: ## Show this help message
 	@echo "OpenAgents GitHub Project Management"
@@ -151,3 +152,110 @@ list: ideas ## Alias for 'ideas'
 open: board ## Alias for 'board'
 high-priority: ## List all high priority items
 	@make by-priority PRIORITY=high
+
+# =============================================================================
+# Evaluation Framework Commands
+# =============================================================================
+
+build-evals: ## Build the evaluation framework
+	@echo "🔨 Building evaluation framework..."
+	@cd evals/framework && npm ci && npm run build
+	@echo "✅ Build complete"
+
+validate-evals: ## Validate all test suites
+	@echo "🔍 Validating test suites..."
+	@cd evals/framework && npm run validate:suites:all
+	@echo "✅ Validation complete"
+
+test-golden: ## Run golden tests (8 tests, ~3-5 min)
+	@echo "🧪 Running golden tests..."
+	@cd evals/framework && npm run eval:sdk -- --agent=openagent --pattern="**/golden/*.yaml"
+
+test-smoke: ## Run smoke test only (1 test, ~30s)
+	@echo "🧪 Running smoke test..."
+	@cd evals/framework && npm run eval:sdk -- --agent=openagent --pattern="**/golden/01-smoke-test.yaml"
+
+test-verbose: ## Run golden tests with full conversation output
+	@echo "🧪 Running golden tests (verbose)..."
+	@cd evals/framework && npm run eval:sdk -- --agent=openagent --pattern="**/golden/*.yaml" --verbose
+
+test-evals: build-evals validate-evals test-golden ## Full eval pipeline: build, validate, test
+
+# Test with specific agent
+test-agent: ## Run tests for specific agent (requires AGENT=name)
+	@if [ -z "$(AGENT)" ]; then \
+		echo "Error: AGENT is required"; \
+		echo "Usage: make test-agent AGENT=openagent"; \
+		echo "       make test-agent AGENT=opencoder"; \
+		exit 1; \
+	fi
+	@echo "🧪 Running tests for agent: $(AGENT)..."
+	@cd evals/framework && npm run eval:sdk -- --agent=$(AGENT) --pattern="**/golden/*.yaml"
+
+# Test with specific model
+test-model: ## Run tests with specific model (requires MODEL=provider/model)
+	@if [ -z "$(MODEL)" ]; then \
+		echo "Error: MODEL is required"; \
+		echo "Usage: make test-model MODEL=opencode/grok-code-fast"; \
+		echo "       make test-model MODEL=anthropic/claude-3-5-sonnet-20241022"; \
+		exit 1; \
+	fi
+	@echo "🧪 Running tests with model: $(MODEL)..."
+	@cd evals/framework && npm run eval:sdk -- --agent=openagent --model=$(MODEL) --pattern="**/golden/*.yaml"
+
+# Test with prompt variant
+test-variant: ## Run tests with prompt variant (requires VARIANT=name)
+	@if [ -z "$(VARIANT)" ]; then \
+		echo "Error: VARIANT is required"; \
+		echo "Usage: make test-variant VARIANT=gpt"; \
+		echo "       make test-variant VARIANT=llama"; \
+		echo "Available: default, gpt, gemini, grok, llama"; \
+		exit 1; \
+	fi
+	@echo "🧪 Running tests with prompt variant: $(VARIANT)..."
+	@cd evals/framework && npm run eval:sdk -- --agent=openagent --prompt-variant=$(VARIANT) --pattern="**/golden/*.yaml"
+
+# Test subagent standalone
+test-subagent: ## Test subagent in standalone mode (requires SUBAGENT=name)
+	@if [ -z "$(SUBAGENT)" ]; then \
+		echo "Error: SUBAGENT is required"; \
+		echo "Usage: make test-subagent SUBAGENT=coder-agent"; \
+		echo "       make test-subagent SUBAGENT=tester"; \
+		echo ""; \
+		echo "Available subagents:"; \
+		echo "  Code: coder-agent, tester, reviewer, build-agent"; \
+		echo "  Core: task-manager, documentation, context-retriever"; \
+		echo "  System: agent-generator, command-creator, context-organizer"; \
+		exit 1; \
+	fi
+	@echo "⚡ Testing subagent (standalone mode): $(SUBAGENT)..."
+	@cd evals/framework && npm run eval:sdk -- --subagent=$(SUBAGENT)
+
+# Test subagent via delegation
+test-subagent-delegate: ## Test subagent via parent delegation (requires SUBAGENT=name)
+	@if [ -z "$(SUBAGENT)" ]; then \
+		echo "Error: SUBAGENT is required"; \
+		echo "Usage: make test-subagent-delegate SUBAGENT=coder-agent"; \
+		echo "       make test-subagent-delegate SUBAGENT=tester"; \
+		exit 1; \
+	fi
+	@echo "🔗 Testing subagent (delegation mode): $(SUBAGENT)..."
+	@cd evals/framework && npm run eval:sdk -- --subagent=$(SUBAGENT) --delegate
+
+# View results
+view-results: ## Open results dashboard in browser
+	@echo "📊 Opening results dashboard..."
+	@open evals/results/index.html 2>/dev/null || xdg-open evals/results/index.html 2>/dev/null || echo "Open evals/results/index.html in your browser"
+
+# Show latest results
+show-results: ## Show latest test results summary
+	@echo "📊 Latest test results:"
+	@if [ -f "evals/results/latest.json" ]; then \
+		echo ""; \
+		jq -r '"Agent: \(.meta.agent)\nModel: \(.meta.model)\nTimestamp: \(.meta.timestamp)\n\nResults: \(.summary.passed)/\(.summary.total) passed (\(.summary.pass_rate * 100 | floor)%)\nDuration: \(.summary.duration_ms)ms"' evals/results/latest.json; \
+		echo ""; \
+		echo "Tests:"; \
+		jq -r '.tests[] | "  \(if .passed then "✅" else "❌" end) \(.id) (\(.duration_ms)ms)"' evals/results/latest.json; \
+	else \
+		echo "No results found. Run 'make test-golden' first."; \
+	fi
