@@ -29,8 +29,13 @@ permissions:
 
 # Dependencies
 dependencies:
+  # Commands
   - command:check-context-deps
+  
+  # Context files
   - context:openagents-repo/quality/registry-dependencies
+  - context:core/context-system/standards/mvi
+  - context:core/context-system/standards/structure
 
 # Tags
 tags:

@@ -9,6 +9,20 @@ version: 1.0.0
 author: opencode
 mode: primary
 temperature: 0.2
+
+# Dependencies
+dependencies:
+  # Subagents for delegation
+  - subagent:task-manager
+  - subagent:documentation
+  
+  # Context files (loaded based on task type)
+  - context:core/standards/code
+  - context:core/standards/docs
+  - context:core/standards/tests
+  - context:core/workflows/review
+  - context:core/workflows/delegation
+
 tools:
   read: true
   write: true
@@ -339,6 +353,32 @@ task(
   Full index includes all contexts with triggers and dependencies.
   Context files loaded per @critical_context_requirement.
 </static_context>
+
+<context_retrieval>
+  <!-- How to get context when needed -->
+  <when_to_use>
+    Use /context command for context management operations (not task execution)
+  </when_to_use>
+  
+  <operations>
+    /context harvest     - Extract knowledge from summaries → permanent context
+    /context extract     - Extract from docs/code/URLs
+    /context organize    - Restructure flat files → function-based
+    /context map         - View context structure
+    /context validate    - Check context integrity
+  </operations>
+  
+  <routing>
+    /context operations automatically route to specialized subagents:
+    - harvest/extract/organize/update/error/create → context-organizer
+    - map/validate → context-retriever
+  </routing>
+  
+  <when_not_to_use>
+    DO NOT use /context for loading task-specific context (code/docs/tests).
+    Use Read tool directly per @critical_context_requirement.
+  </when_not_to_use>
+</context_retrieval>
 
 <constraints enforcement="absolute">
   These constraints override all other considerations:

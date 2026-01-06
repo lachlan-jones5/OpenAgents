@@ -31,10 +31,12 @@ TOTAL_PATHS=0
 VALID_PATHS=0
 MISSING_PATHS=0
 ORPHANED_FILES=0
+MISSING_DEPENDENCIES=0
 
 # Arrays to store results
 declare -a MISSING_FILES
 declare -a ORPHANED_COMPONENTS
+declare -a MISSING_DEPS
 
 #############################################################################
 # Utility Functions
@@ -216,6 +218,135 @@ scan_for_orphaned_files() {
 }
 
 #############################################################################
+# Dependency Validation
+#############################################################################
+
+check_dependency_exists() {
+    local dep=$1
+    
+    # Parse dependency format: type:id
+    if [[ ! "$dep" =~ ^([^:]+):(.+)$ ]]; then
+        echo "invalid_format"
+        return 1
+    fi
+    
+    local dep_type="${BASH_REMATCH[1]}"
+    local dep_id="${BASH_REMATCH[2]}"
+    
+    # Map dependency type to registry category
+    local registry_category=""
+    case "$dep_type" in
+        agent)
+            registry_category="agents"
+            ;;
+        subagent)
+            registry_category="subagents"
+            ;;
+        command)
+            registry_category="commands"
+            ;;
+        tool)
+            registry_category="tools"
+            ;;
+        plugin)
+            registry_category="plugins"
+            ;;
+        context)
+            registry_category="contexts"
+            ;;
+        config)
+            registry_category="config"
+            ;;
+        *)
+            echo "unknown_type"
+            return 1
+            ;;
+    esac
+    
+    # Check if component exists in registry
+    # First try exact ID match
+    local exists=$(jq -r ".components.${registry_category}[]? | select(.id == \"${dep_id}\") | .id" "$REGISTRY_FILE" 2>/dev/null)
+    
+    if [ -n "$exists" ]; then
+        echo "found"
+        return 0
+    fi
+    
+    # For context dependencies, also try path-based lookup
+    # Format: context:core/standards/code -> .opencode/context/core/standards/code.md
+    if [ "$dep_type" = "context" ]; then
+        local context_path=".opencode/context/${dep_id}.md"
+        local exists_by_path=$(jq -r ".components.${registry_category}[]? | select(.path == \"${context_path}\") | .id" "$REGISTRY_FILE" 2>/dev/null)
+        
+        if [ -n "$exists_by_path" ]; then
+            echo "found"
+            return 0
+        fi
+    fi
+    
+    echo "not_found"
+    return 1
+}
+
+validate_component_dependencies() {
+    echo ""
+    print_info "Validating component dependencies..."
+    echo ""
+    
+    # Get all component types
+    local component_types=$(jq -r '.components | keys[]' "$REGISTRY_FILE" 2>/dev/null)
+    
+    while IFS= read -r comp_type; do
+        # Get all components of this type
+        local components=$(jq -r ".components.${comp_type}[]? | @json" "$REGISTRY_FILE" 2>/dev/null)
+        
+        if [ -z "$components" ]; then
+            continue
+        fi
+        
+        while IFS= read -r component; do
+            local id=$(echo "$component" | jq -r '.id')
+            local name=$(echo "$component" | jq -r '.name')
+            local dependencies=$(echo "$component" | jq -r '.dependencies[]?' 2>/dev/null)
+            
+            if [ -z "$dependencies" ]; then
+                continue
+            fi
+            
+            # Check each dependency
+            while IFS= read -r dep; do
+                if [ -z "$dep" ]; then
+                    continue
+                fi
+                
+                local result=$(check_dependency_exists "$dep")
+                
+                case "$result" in
+                    found)
+                        [ "$VERBOSE" = true ] && print_success "Dependency OK: ${name} → ${dep}"
+                        ;;
+                    not_found)
+                        MISSING_DEPENDENCIES=$((MISSING_DEPENDENCIES + 1))
+                        MISSING_DEPS+=("${comp_type}|${id}|${name}|${dep}")
+                        print_error "Missing dependency: ${name} (${comp_type%s}) depends on \"${dep}\" (not found in registry)"
+                        ;;
+                    invalid_format)
+                        MISSING_DEPENDENCIES=$((MISSING_DEPENDENCIES + 1))
+                        MISSING_DEPS+=("${comp_type}|${id}|${name}|${dep}")
+                        print_error "Invalid dependency format: ${name} (${comp_type%s}) has invalid dependency \"${dep}\" (expected format: type:id)"
+                        ;;
+                    unknown_type)
+                        MISSING_DEPENDENCIES=$((MISSING_DEPENDENCIES + 1))
+                        MISSING_DEPS+=("${comp_type}|${id}|${name}|${dep}")
+                        print_error "Unknown dependency type: ${name} (${comp_type%s}) has unknown dependency type in \"${dep}\""
+                        ;;
+                esac
+            done <<< "$dependencies"
+        done <<< "$components"
+    done <<< "$component_types"
+}
+
+#############################################################################
 # Reporting
 #############################################################################
 
@@ -228,6 +359,7 @@ print_summary() {
     echo -e "Total paths checked:    ${CYAN}${TOTAL_PATHS}${NC}"
     echo -e "Valid paths:            ${GREEN}${VALID_PATHS}${NC}"
     echo -e "Missing paths:          ${RED}${MISSING_PATHS}${NC}"
+    echo -e "Missing dependencies:   ${RED}${MISSING_DEPENDENCIES}${NC}"
     
     if [ "$VERBOSE" = true ]; then
         echo -e "Orphaned files:         ${YELLOW}${ORPHANED_FILES}${NC}"
@@ -235,8 +367,47 @@ print_summary() {
     
     echo ""
     
-    if [ $MISSING_PATHS -eq 0 ]; then
+    local has_errors=false
+    
+    # Check for missing paths
+    if [ $MISSING_PATHS -gt 0 ]; then
+        has_errors=true
+        print_error "Found ${MISSING_PATHS} missing file(s)"
+        echo ""
+        echo "Missing files:"
+        for entry in "${MISSING_FILES[@]}"; do
+            IFS='|' read -r cat_id name path <<< "$entry"
+            echo "  - ${path} (${cat_id})"
+        done
+        echo ""
+        
+        if [ "$FIX_MODE" = false ]; then
+            print_info "Run with --fix flag to see suggested fixes"
+            echo ""
+        fi
+    fi
+    
+    # Check for missing dependencies
+    if [ $MISSING_DEPENDENCIES -gt 0 ]; then
+        has_errors=true
+        print_error "Found ${MISSING_DEPENDENCIES} missing or invalid dependencies"
+        echo ""
+        echo "Missing dependencies:"
+        for entry in "${MISSING_DEPS[@]}"; do
+            IFS='|' read -r comp_type id name dep <<< "$entry"
+            echo "  - ${name} (${comp_type%s}) → ${dep}"
+        done
+        echo ""
+        print_info "Fix by either:"
+        echo "  1. Adding the missing component to the registry"
+        echo "  2. Removing the dependency from the component's frontmatter"
+        echo ""
+    fi
+    
+    # Success case
+    if [ "$has_errors" = false ]; then
         print_success "All registry paths are valid!"
+        print_success "All component dependencies are valid!"
         
         if [ $ORPHANED_FILES -gt 0 ] && [ "$VERBOSE" = true ]; then
             echo ""
@@ -252,21 +423,7 @@ print_summary() {
         
         return 0
     else
-        print_error "Found ${MISSING_PATHS} missing file(s)"
-        echo ""
-        echo "Missing files:"
-        for entry in "${MISSING_FILES[@]}"; do
-            IFS='|' read -r cat_id name path <<< "$entry"
-            echo "  - ${path} (${cat_id})"
-        done
-        echo ""
         echo "Please fix these issues before proceeding."
-        
-        if [ "$FIX_MODE" = false ]; then
-            echo ""
-            print_info "Run with --fix flag to see suggested fixes"
-        fi
-        
         return 1
     fi
 }
@@ -318,6 +475,9 @@ main() {
     validate_component_paths "plugins" "Plugins"
     validate_component_paths "contexts" "Contexts"
     validate_component_paths "config" "Config"
+    
+    # Validate component dependencies
+    validate_component_dependencies
     
     # Scan for orphaned files if verbose
     if [ "$VERBOSE" = true ]; then

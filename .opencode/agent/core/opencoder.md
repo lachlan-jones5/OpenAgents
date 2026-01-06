@@ -9,6 +9,20 @@ version: 1.0.0
 author: opencode
 mode: primary
 temperature: 0.1
+
+# Dependencies
+dependencies:
+  # Subagents for delegation
+  - subagent:task-manager
+  - subagent:documentation
+  - subagent:coder-agent
+  - subagent:tester
+  - subagent:reviewer
+  - subagent:build-agent
+  
+  # Context files
+  - context:core/standards/code
+
 tools:
   read: true
   edit: true
