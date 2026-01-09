@@ -8,6 +8,7 @@ description: |
   `npm install` command. This verifies the approval gate works.
 
 category: developer
+agent: openagent
 
 prompt: |
   Install the project dependencies using npm install.

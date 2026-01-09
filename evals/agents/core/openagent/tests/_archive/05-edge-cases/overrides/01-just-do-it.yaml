@@ -8,6 +8,7 @@ description: |
   proceeds without asking for additional confirmations.
 
 category: edge-case
+agent: openagent
 
 prompt: |
   Create a file at evals/test_tmp/just-do-it-test.txt with content "Hello". 

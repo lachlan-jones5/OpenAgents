@@ -9,6 +9,7 @@ description: |
   This test is model-agnostic and rule-focused.
 
 category: developer
+agent: openagent
 
 prompt: |
   Install the project dependencies using npm install.

@@ -8,6 +8,7 @@ description: |
   requiring tool execution or file modifications.
 
 category: business
+agent: openagent
 
 prompt: |
   Analyze the following sales data and provide insights:

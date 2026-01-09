@@ -28,9 +28,16 @@
       "events": 18,
       "approvals": 0,
       "violations": {
-        "total": 0,
+        "total": 1,
         "errors": 0,
-        "warnings": 0
+        "warnings": 1,
+        "details": [
+          {
+            "type": "insufficient-read",
+            "severity": "warning",
+            "message": "Read/execution ratio < 1 (0.67)"
+          }
+        ]
       }
     }
   ]

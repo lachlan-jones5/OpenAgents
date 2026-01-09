@@ -404,6 +404,13 @@ If you see this prompt during a test run, something went wrong with the test set
       console.log('[TestRunner] Multi-agent logging enabled (verbose mode)');
     }
 
+    // Initialize multi-agent logger (always enabled, verbose only in debug mode)
+    this.multiAgentLogger = new MultiAgentLogger(true, this.config.debug);
+    this.eventHandler.setMultiAgentLogger(this.multiAgentLogger);
+    if (this.config.debug) {
+      console.log('[TestRunner] Multi-agent logging enabled (verbose mode)');
+    }
+
     // Create executor
     this.executor = new TestExecutor(
       this.client,

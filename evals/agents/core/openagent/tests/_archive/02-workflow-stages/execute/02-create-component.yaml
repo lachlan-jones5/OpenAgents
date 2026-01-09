@@ -8,6 +8,7 @@ description: |
   and asks for approval before writing the file.
 
 category: developer
+agent: openagent
 
 prompt: |
   Create a new React functional component called Button in a file at 
