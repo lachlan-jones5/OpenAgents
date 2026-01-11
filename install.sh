@@ -1050,7 +1050,14 @@ show_post_install() {
     
     # Check for backup directories
     local has_backup=0
-    for backup_dir in "${INSTALL_DIR}.backup."* 2>/dev/null; do
+    local backup_dir
+    local backup_dirs=()
+
+    shopt -s nullglob
+    backup_dirs=("${INSTALL_DIR}.backup."*)
+    shopt -u nullglob
+
+    for backup_dir in "${backup_dirs[@]}"; do
         if [ -d "$backup_dir" ]; then
             has_backup=1
             break
