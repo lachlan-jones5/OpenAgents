@@ -130,7 +130,8 @@ validate_component_paths() {
     [ "$VERBOSE" = true ] && echo -e "\n${BOLD}Checking ${category_display}...${NC}"
     
     # Get all components in this category
-    local components=$(jq -r ".components.${category}[]? | @json" "$REGISTRY_FILE" 2>/dev/null)
+    local components
+    components=$(jq -r ".components.${category}[]? | @json" "$REGISTRY_FILE" 2>/dev/null)
     
     if [ -z "$components" ]; then
         [ "$VERBOSE" = true ] && print_info "No ${category_display} found in registry"
@@ -138,9 +139,12 @@ validate_component_paths() {
     fi
     
     while IFS= read -r component; do
-        local id=$(echo "$component" | jq -r '.id')
-        local path=$(echo "$component" | jq -r '.path')
-        local name=$(echo "$component" | jq -r '.name')
+        local id
+        id=$(echo "$component" | jq -r '.id')
+        local path
+        path=$(echo "$component" | jq -r '.path')
+        local name
+        name=$(echo "$component" | jq -r '.name')
         
         TOTAL_PATHS=$((TOTAL_PATHS + 1))
         
@@ -166,12 +170,15 @@ suggest_fix() {
     local component_id=$2
     
     # Extract directory and filename
-    local dir=$(dirname "$missing_path")
-    local filename=$(basename "$missing_path")
-    local base_dir=$(echo "$dir" | cut -d'/' -f1-3)  # e.g., .opencode/command
+    local dir
+    dir=$(dirname "$missing_path")
+    # local filename=$(basename "$missing_path") # Unused
+    local base_dir
+    base_dir=$(echo "$dir" | cut -d'/' -f1-3)  # e.g., .opencode/command
     
     # Look for similar files in the expected directory and subdirectories
-    local similar_files=$(find "$REPO_ROOT/$base_dir" -type f -name "*.md" 2>/dev/null | grep -i "$component_id" || true)
+    local similar_files
+    similar_files=$(find "$REPO_ROOT/$base_dir" -type f -name "*.md" 2>/dev/null | grep -i "$component_id" || true)
     
     if [ -n "$similar_files" ]; then
         echo -e "  ${YELLOW}→ Possible matches:${NC}"
@@ -186,7 +193,8 @@ scan_for_orphaned_files() {
     [ "$VERBOSE" = true ] && echo -e "\n${BOLD}Scanning for orphaned files...${NC}"
     
     # Get all paths from registry
-    local registry_paths=$(jq -r '.components | to_entries[] | .value[] | .path' "$REGISTRY_FILE" 2>/dev/null | sort -u)
+    local registry_paths
+    registry_paths=$(jq -r '.components | to_entries[] | .value[] | .path' "$REGISTRY_FILE" 2>/dev/null | sort -u)
     
     # Scan .opencode directory for markdown files
     local categories=("agent" "command" "tool" "plugin" "context")
@@ -293,7 +301,8 @@ check_dependency_exists() {
     
     # Check if component exists in registry
     # First try exact ID match
-    local exists=$(jq -r ".components.${registry_category}[]? | select(.id == \"${dep_id}\") | .id" "$REGISTRY_FILE" 2>/dev/null)
+    local exists
+    exists=$(jq -r ".components.${registry_category}[]? | select(.id == \"${dep_id}\") | .id" "$REGISTRY_FILE" 2>/dev/null)
     
     if [ -n "$exists" ]; then
         echo "found"
@@ -304,7 +313,8 @@ check_dependency_exists() {
     # Format: context:core/standards/code -> .opencode/context/core/standards/code.md
     if [ "$dep_type" = "context" ]; then
         local context_path=".opencode/context/${dep_id}.md"
-        local exists_by_path=$(jq -r ".components.${registry_category}[]? | select(.path == \"${context_path}\") | .id" "$REGISTRY_FILE" 2>/dev/null)
+        local exists_by_path
+        exists_by_path=$(jq -r ".components.${registry_category}[]? | select(.path == \"${context_path}\") | .id" "$REGISTRY_FILE" 2>/dev/null)
         
         if [ -n "$exists_by_path" ]; then
             echo "found"
@@ -322,20 +332,25 @@ validate_component_dependencies() {
     echo ""
     
     # Get all component types
-    local component_types=$(jq -r '.components | keys[]' "$REGISTRY_FILE" 2>/dev/null)
+    local component_types
+    component_types=$(jq -r '.components | keys[]' "$REGISTRY_FILE" 2>/dev/null)
     
     while IFS= read -r comp_type; do
         # Get all components of this type
-        local components=$(jq -r ".components.${comp_type}[]? | @json" "$REGISTRY_FILE" 2>/dev/null)
+        local components
+        components=$(jq -r ".components.${comp_type}[]? | @json" "$REGISTRY_FILE" 2>/dev/null)
         
         if [ -z "$components" ]; then
             continue
         fi
         
         while IFS= read -r component; do
-            local id=$(echo "$component" | jq -r '.id')
-            local name=$(echo "$component" | jq -r '.name')
-            local dependencies=$(echo "$component" | jq -r '.dependencies[]?' 2>/dev/null)
+            local id
+            id=$(echo "$component" | jq -r '.id')
+            local name
+            name=$(echo "$component" | jq -r '.name')
+            local dependencies
+            dependencies=$(echo "$component" | jq -r '.dependencies[]?' 2>/dev/null)
             
             if [ -z "$dependencies" ]; then
                 continue
@@ -347,7 +362,8 @@ validate_component_dependencies() {
                     continue
                 fi
                 
-                local result=$(check_dependency_exists "$dep")
+                local result
+                result=$(check_dependency_exists "$dep")
                 
                 case "$result" in
                     found)
