@@ -560,6 +560,17 @@ show_profile_menu() {
         [ -n "$component" ] && SELECTED_COMPONENTS+=("$component")
     done < "$temp_file"
     
+    # Resolve dependencies for profile installs
+    print_step "Resolving dependencies..."
+    local original_count=${#SELECTED_COMPONENTS[@]}
+    for comp in "${SELECTED_COMPONENTS[@]}"; do
+        resolve_dependencies "$comp"
+    done
+    
+    if [ ${#SELECTED_COMPONENTS[@]} -gt $original_count ]; then
+        print_info "Added $((${#SELECTED_COMPONENTS[@]} - original_count)) dependencies"
+    fi
+    
     show_installation_preview
 }
 
@@ -1226,6 +1237,18 @@ main() {
         while IFS= read -r component; do
             [ -n "$component" ] && SELECTED_COMPONENTS+=("$component")
         done < "$temp_file"
+
+        # Resolve dependencies for profile installs
+        print_step "Resolving dependencies..."
+        local original_count=${#SELECTED_COMPONENTS[@]}
+        for comp in "${SELECTED_COMPONENTS[@]}"; do
+            resolve_dependencies "$comp"
+        done
+
+        if [ ${#SELECTED_COMPONENTS[@]} -gt $original_count ]; then
+            print_info "Added $((${#SELECTED_COMPONENTS[@]} - original_count)) dependencies"
+        fi
+
         show_installation_preview
     else
         # Interactive mode - show location menu first

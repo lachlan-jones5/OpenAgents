@@ -207,6 +207,34 @@ scan_for_orphaned_files() {
                 continue
             fi
             
+            # Skip README files
+            if [[ "$rel_path" == *"README.md" ]]; then
+                continue
+            fi
+            
+            # Skip template files
+            if [[ "$rel_path" == *"-template.md" ]]; then
+                continue
+            fi
+            
+            # Skip tool/plugin TypeScript files
+            if [[ "$rel_path" == *"/tool/index.ts" ]] || [[ "$rel_path" == *"/tool/template/index.ts" ]]; then
+                continue
+            fi
+            if [[ "$rel_path" == *"/plugin/agent-validator.ts" ]]; then
+                continue
+            fi
+            
+            # Skip plugin internal docs and tests
+            if [[ "$rel_path" == *"/plugin/docs/"* ]] || [[ "$rel_path" == *"/plugin/tests/"* ]]; then
+                continue
+            fi
+            
+            # Skip scripts directories (internal CLI tools, not registry components)
+            if [[ "$rel_path" == *"/scripts/"* ]]; then
+                continue
+            fi
+            
             # Check if this path is in registry
             if ! echo "$registry_paths" | grep -q "^${rel_path}$"; then
                 ORPHANED_FILES=$((ORPHANED_FILES + 1))
