@@ -298,7 +298,26 @@ get_component_info() {
     local component_id=$1
     local component_type=$2
     
+    if [ "$component_type" = "context" ] && [[ "$component_id" == */* ]]; then
+        jq_exec "first(.components.contexts[]? | select(.path == \".opencode/context/${component_id}.md\"))" "$TEMP_DIR/registry.json"
+        return
+    fi
+
     jq_exec ".components.${component_type}[]? | select(.id == \"${component_id}\" or (.aliases // [] | index(\"${component_id}\")))" "$TEMP_DIR/registry.json"
+}
+
+resolve_component_path() {
+    local component_type=$1
+    local component_id=$2
+    local registry_key
+    registry_key=$(get_registry_key "$component_type")
+
+    if [ "$component_type" = "context" ] && [[ "$component_id" == */* ]]; then
+        jq_exec "first(.components.contexts[]? | select(.path == \".opencode/context/${component_id}.md\") | .path)" "$TEMP_DIR/registry.json"
+        return
+    fi
+
+    jq_exec ".components.${registry_key}[]? | select(.id == \"${component_id}\" or (.aliases // [] | index(\"${component_id}\"))) | .path" "$TEMP_DIR/registry.json"
 }
 
 # Helper function to get the correct registry key for a component type
@@ -331,7 +350,7 @@ expand_context_wildcard() {
         prefix="${prefix}/"
     fi
 
-    jq_exec ".components.contexts[]? | select(.path | startswith(\".opencode/context/${prefix}\")) | .id" "$TEMP_DIR/registry.json"
+    jq_exec ".components.contexts[]? | select(.path | startswith(\".opencode/context/${prefix}\")) | .path | sub(\"^\\\\.opencode/context/\"; \"\") | sub(\"\\\\.md$\"; \"\")" "$TEMP_DIR/registry.json"
 }
 
 expand_selected_components() {
@@ -1000,7 +1019,7 @@ perform_installation() {
         local registry_key
         registry_key=$(get_registry_key "$type")
         local path
-        path=$(jq_exec ".components.${registry_key}[]? | select(.id == \"${id}\") | .path" "$TEMP_DIR/registry.json")
+        path=$(resolve_component_path "$type" "$id")
         
         if [ -n "$path" ] && [ "$path" != "null" ]; then
             local install_path
@@ -1077,7 +1096,7 @@ perform_installation() {
         
         # Get component path
         local path
-        path=$(jq_exec ".components.${registry_key}[]? | select(.id == \"${id}\" or (.aliases // [] | index(\"${id}\"))) | .path" "$TEMP_DIR/registry.json")
+        path=$(resolve_component_path "$type" "$id")
         
         if [ -z "$path" ] || [ "$path" = "null" ]; then
             print_warning "Could not find path for ${comp}"
