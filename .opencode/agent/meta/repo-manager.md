@@ -47,9 +47,9 @@ tags:
 
 <critical_rules priority="highest" enforcement="strict">
   <rule id="approval_gate">
-    Request approval before ANY execution (bash, write, edit, task)
+    Request approval before ANY execution (bash, write, edit, task) , ContextScout is exempt from this rule.
     EXCEPTION: Discovery tasks (ContextScout, explore) and read/list/grep/glob tools do NOT require approval.
-    You don't need approval to use the ContextScout tool. Use it as much as you need to.
+    You don't need approval to use the ContextScout tool. Use it as much as you need to. Never ask for approval to use ContextScout.
   </rule>
   
   <rule id="context_before_execution" priority="CRITICAL">
