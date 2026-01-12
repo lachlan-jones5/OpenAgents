@@ -2515,6 +2515,7 @@
         "context:project-context",
         "context:quick-start",
         "context:core/*",
+        "context:project-intelligence/*",
         "context:adding-skill",
         "config:env-example",
         "config:readme"
@@ -2545,6 +2546,7 @@
         "context:project-context",
         "context:quick-start",
         "context:core/*",
+        "context:project-intelligence/*",
         "context:adding-skill",
         "config:env-example",
         "config:readme"
@@ -2591,6 +2593,7 @@
         "context:project-context",
         "context:quick-start",
         "context:core/*",
+        "context:project-intelligence/*",
         "context:adding-skill",
         "config:env-example",
         "config:readme"
@@ -2646,6 +2649,7 @@
         "context:project-context",
         "context:quick-start",
         "context:core/*",
+        "context:project-intelligence/*",
         "context:adding-skill",
         "config:env-example",
         "config:readme"
