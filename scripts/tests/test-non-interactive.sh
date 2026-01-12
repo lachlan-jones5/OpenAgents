@@ -56,6 +56,19 @@ print_header() {
     echo -e "${NC}"
 }
 
+run_with_timeout() {
+    local duration=$1
+    shift
+    if command -v timeout &> /dev/null; then
+        timeout "$duration" "$@"
+    elif command -v gtimeout &> /dev/null; then
+        gtimeout "$duration" "$@"
+    else
+        # Fallback: run without timeout
+        "$@"
+    fi
+}
+
 #############################################################################
 # Test 1: Fresh install with piped input (simulates curl | bash)
 #############################################################################
@@ -121,7 +134,7 @@ test_profile_non_interactive() {
     local install_dir="$TEST_DIR/profile-essential/.opencode"
     
     local output
-    output=$(echo "" | timeout 60 bash "$REPO_ROOT/install.sh" essential --install-dir="$install_dir" 2>&1) || true
+    output=$(echo "" | run_with_timeout 60 bash "$REPO_ROOT/install.sh" essential --install-dir="$install_dir" 2>&1) || true
     
     if echo "$output" | grep -q "Installation complete"; then
         pass "Profile 'essential' installed successfully"
