@@ -1118,12 +1118,12 @@ show_post_install() {
 #############################################################################
 
 list_components() {
-    clear
+    clear || true
     print_header
     
     echo -e "${BOLD}Available Components${NC}\n"
     
-    local categories=("agents" "subagents" "commands" "tools" "plugins" "contexts")
+    local categories=("agents" "subagents" "commands" "tools" "plugins" "skills" "contexts")
     
     for category in "${categories[@]}"; do
         local cat_display
