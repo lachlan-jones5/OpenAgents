@@ -71,7 +71,7 @@ test_essential_profile() {
             pass "Found: $file"
         else
             fail "Missing: $file"
-            ((missing++))
+            ((missing+=1))
         fi
     done
     
@@ -101,7 +101,7 @@ test_developer_profile() {
     local found=0
     for file in "${expected_files[@]}"; do
         if [ -f "$install_dir/$file" ]; then
-            ((found++))
+            ((found+=1))
         fi
     done
     
