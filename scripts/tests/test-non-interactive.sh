@@ -140,7 +140,7 @@ test_simulated_curl_pipe() {
     
     local install_dir="$TEST_DIR/curl-sim/.opencode"
     
-    cat "$REPO_ROOT/install.sh" | bash -s essential --install-dir="$install_dir" 2>&1 | tail -5 > "$TEST_DIR/curl-output.txt"
+    cat "$REPO_ROOT/install.sh" | bash -s essential --install-dir="$install_dir" > "$TEST_DIR/curl-output.txt" 2>&1
     
     if grep -q "Installation complete\|Installed:" "$TEST_DIR/curl-output.txt"; then
         pass "Simulated 'curl | bash -s essential' worked"
