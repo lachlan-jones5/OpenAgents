@@ -754,11 +754,11 @@
         "name": "Project Context",
         "type": "context",
         "path": ".opencode/context/project/project-context.md",
-        "description": "Project-specific context and configuration",
+        "description": "⛔ DEPRECATED: Replaced by project-intelligence/technical-domain.md",
         "tags": [
+          "deprecated",
           "context",
-          "project",
-          "configuration"
+          "project"
         ],
         "dependencies": [],
         "category": "essential"

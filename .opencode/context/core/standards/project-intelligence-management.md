@@ -84,7 +84,7 @@
 
 **When**:
 - 5+ related files need grouping
-- Subdomain warrants separation
+- Subdomain warrants separation (e.g., `api/`, `mobile/`, `integrations/`)
 - Improves navigation clarity
 
 **Structure**:
@@ -116,7 +116,7 @@ project-intelligence/
 3. Add content files
 4. Update root `navigation.md` with subfolder entry
 
-**Rule**: Every subfolder MUST have `navigation.md`
+**Rule**: Every subfolder MUST have `navigation.md`. Avoid nesting deeper than 2 levels (e.g., `project-intelligence/domain/subdomain/`) to prevent context fragmentation.
 
 ---
 

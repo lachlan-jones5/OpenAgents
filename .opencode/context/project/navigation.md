@@ -2,7 +2,7 @@
 
 **Purpose**: OpenCode Agent System project-specific context
 
-**Status**: ⚠️ Legacy - Consider migrating to `openagents-repo/`
+**Status**: ⛔ DEPRECATED - Migrated to `project-intelligence/`
 
 ---
 
@@ -10,17 +10,15 @@
 
 | File | Purpose | Status |
 |------|---------|--------|
-| `project-context.md` | Technology stack, patterns, workflows | ⚠️ Outdated |
+| `project-context.md` | Technology stack, patterns, workflows | ⛔ DEPRECATED |
 
 ---
 
 ## Note
 
-This category contains legacy project context that may be redundant with:
-- `openagents-repo/` - Repository-specific context
-- `core/` - Universal standards and workflows
+This category is DEPRECATED. Its contents have been migrated to the Project Intelligence system.
 
-**Recommendation**: Review and migrate useful content to appropriate categories.
+**Replacement**: See `.opencode/context/project-intelligence/navigation.md` for current project context.
 
 ---
 

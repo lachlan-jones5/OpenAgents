@@ -1,4 +1,9 @@
-# OpenCode Agent System Project Context
+<!-- DEPRECATED: 2026-01-12 - Replaced by project-intelligence/technical-domain.md -->
+<!-- REPLACED BY: ../project-intelligence/technical-domain.md -->
+
+# ⚠️ DEPRECATED: OpenCode Agent System Project Context
+
+> ⛔ This file is deprecated. See `project-intelligence/technical-domain.md` for the current technical domain documentation.
 
 ## Technology Stack
 

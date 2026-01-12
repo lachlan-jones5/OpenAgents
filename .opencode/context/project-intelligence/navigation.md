@@ -55,7 +55,7 @@ Keep this folder current:
 - Review `living-notes.md` regularly
 - Archive resolved items from decisions-log.md
 
-**Management Guide**: See `.opencode/context/core/standards/project-intelligence-guide.md` for complete lifecycle management including:
+**Management Guide**: See `.opencode/context/core/standards/project-intelligence-management.md` for complete lifecycle management including:
 - How to update, add, and remove files
 - How to create new subfolders
 - Version tracking and frontmatter standards
