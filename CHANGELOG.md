@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+## [0.5.2] - 2026-01-13
+
+### Changes
+- docs(core): refine project intelligence system and deprecate legacy context (#93)
+
 ## [0.5.0] - 2025-12-18
 
 ### Changes
